@@ -79,7 +79,7 @@ export interface UserPreferences {
 }
 
 export type ThemeMode = 'light' | 'dark' | 'system';
-export type ColorTheme = 'default' | 'indigo' | 'purple' | 'emerald' | 'teal' | 'orange' | 'rose' | 'slate';
+export type ColorTheme = 'default' | 'blue' | 'emerald' | 'purple' | 'teal' | 'orange';
 export type AppLanguage = 'fa' | 'en' | 'de';
 export type DateFormatPreference = 'jalali' | 'gregorian';
 export type InterfaceDensity = 'comfortable' | 'compact';
