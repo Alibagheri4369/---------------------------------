@@ -2,7 +2,7 @@ export type AppLanguage = 'fa' | 'en' | 'de';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
-export type ColorTheme = 'default' | 'blue' | 'emerald' | 'purple' | 'teal' | 'orange';
+export type ColorTheme = 'default' | 'blue' | 'indigo' | 'purple' | 'emerald' | 'teal' | 'orange' | 'rose' | 'slate';
 
 export type DateFormatPreference = 'jalali' | 'gregorian';
 

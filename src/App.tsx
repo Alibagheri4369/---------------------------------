@@ -488,4 +488,4 @@ export default function App() {
     </ThemeProvider>
     </ErrorBoundary>
   );
-}
+} 

@@ -1,4 +1,4 @@
-export type ColorTheme = 'default' | 'blue' | 'emerald' | 'purple' | 'teal' | 'orange';
+export type ColorTheme = 'default' | 'blue' | 'indigo' | 'purple' | 'emerald' | 'teal' | 'orange' | 'rose' | 'slate';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
