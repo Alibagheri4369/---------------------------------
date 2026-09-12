@@ -33,6 +33,7 @@ import { User, Project, UserPreferences, ThemeMode, ColorTheme, AppLanguage, Dat
 import { PRODUCT_GUIDE_CHAPTERS, GuideChapter } from '../data/productGuideChapters';
 import { getCurrentJalaliDate, toPersianDigits, getTehranDate } from '../utils/jalali';
 import { useI18n } from '../i18n/I18nProvider';
+import { useTheme } from '../theme/ThemeProvider';
 
 export type ProfileSubSection = 'account' | 'settings' | 'theme' | 'guide' | 'about' | 'socials';
 
@@ -60,9 +61,12 @@ export function UserProfileView({
   const [activeSub, setActiveSub] = useState<ProfileSubSection>(initialSubSection);
   const [, startTransition] = useTransition();
 
+  // استفاده از ThemeProvider برای مدیریت تم
+  const { themeMode: currentThemeMode, colorTheme: currentColorTheme, setThemeMode: setGlobalThemeMode, setColorTheme: setGlobalColorTheme } = useTheme();
+
   // Local draft states for settings
-  const [themeMode, setThemeMode] = useState<ThemeMode>(preferences.themeMode);
-  const [colorTheme, setColorTheme] = useState<ColorTheme>(preferences.colorTheme);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(currentThemeMode);
+  const [colorTheme, setColorTheme] = useState<ColorTheme>(currentColorTheme);
   const [draftLanguage, setDraftLanguage] = useState<AppLanguage>(preferences.language);
   const [timezone, setTimezone] = useState<string>(preferences.timezone || 'Asia/Tehran');
   const [dateFormat, setDateFormat] = useState<DateFormatPreference>(preferences.dateFormat);
@@ -96,6 +100,11 @@ export function UserProfileView({
   const handleSaveSettings = async () => {
     setIsSavingPrefs(true);
     setSaveSuccess(false);
+    
+    // اعمال فوری تغییرات تم به ThemeProvider
+    setGlobalThemeMode(themeMode);
+    setGlobalColorTheme(colorTheme);
+    
     const ok = await onUpdatePreferences({
       themeMode,
       colorTheme,
@@ -627,7 +636,10 @@ export function UserProfileView({
                 <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"
-                    onClick={() => setThemeMode('dark')}
+                    onClick={() => {
+                      setThemeMode('dark');
+                      setGlobalThemeMode('dark'); // اعمال فوری
+                    }}
                     className={`p-3.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-2 cursor-pointer ${
                       themeMode === 'dark'
                         ? 'bg-amber-400/10 border-amber-400 text-amber-400 shadow-lg shadow-amber-400/10'
@@ -640,7 +652,10 @@ export function UserProfileView({
 
                   <button
                     type="button"
-                    onClick={() => setThemeMode('light')}
+                    onClick={() => {
+                      setThemeMode('light');
+                      setGlobalThemeMode('light'); // اعمال فوری
+                    }}
                     className={`p-3.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-2 cursor-pointer ${
                       themeMode === 'light'
                         ? 'bg-amber-400/10 border-amber-400 text-amber-400 shadow-lg shadow-amber-400/10'
@@ -653,7 +668,10 @@ export function UserProfileView({
 
                   <button
                     type="button"
-                    onClick={() => setThemeMode('system')}
+                    onClick={() => {
+                      setThemeMode('system');
+                      setGlobalThemeMode('system'); // اعمال فوری
+                    }}
                     className={`p-3.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-2 cursor-pointer ${
                       themeMode === 'system'
                         ? 'bg-amber-400/10 border-amber-400 text-amber-400 shadow-lg shadow-amber-400/10'
@@ -683,7 +701,10 @@ export function UserProfileView({
                     <button
                       key={t.id}
                       type="button"
-                      onClick={() => setColorTheme(t.id as ColorTheme)}
+                      onClick={() => {
+                        setColorTheme(t.id as ColorTheme);
+                        setGlobalColorTheme(t.id as ColorTheme); // اعمال فوری
+                      }}
                       className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer ${
                         colorTheme === t.id
                           ? 'bg-slate-800/80 border-amber-400 text-white shadow-md'
