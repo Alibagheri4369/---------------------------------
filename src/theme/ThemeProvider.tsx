@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
 import type { ThemeMode, ColorTheme } from './tokens';
+import { getUserPreferences, saveUserPreferences } from '../services/preferenceService';
 import { 
   getComputedTokens, 
   applyTokensToCSS, 
@@ -27,8 +28,9 @@ interface ThemeProviderProps {
 export function ThemeProvider({ 
   children, 
   initialThemeMode = 'system', 
-  initialColorTheme = 'default' 
-}: ThemeProviderProps) {
+  initialColorTheme = 'default',
+  userId = 'guest_anonymous'
+}: ThemeProviderProps & { userId?: string }) {
   const [themeMode, setThemeModeState] = useState<ThemeMode>(initialThemeMode);
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(initialColorTheme);
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
@@ -68,34 +70,49 @@ export function ThemeProvider({
   useEffect(() => {
     setMounted(true);
     
-    // Load from localStorage if available (for immediate paint)
-    try {
-      const savedMode = localStorage.getItem('themeMode') as ThemeMode | null;
-      const savedColor = localStorage.getItem('colorTheme') as ColorTheme | null;
+    // Load preferences from Supabase
+    const loadPreferences = async () => {
+      try {
+        if (userId && !userId.startsWith('guest_')) {
+          const prefs = await getUserPreferences(userId);
+          if (prefs) {
+            setThemeModeState(prefs.themeMode);
+            setColorThemeState(prefs.colorTheme);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load theme preferences:', error);
+        // Ignore - will use initial props
+      }
       
-      if (savedMode) setThemeModeState(savedMode);
-      if (savedColor) setColorThemeState(savedColor);
-    } catch {
-      // Ignore localStorage errors
-    }
+      // Apply initial theme
+      applyTheme(themeMode, colorTheme);
+    };
     
-    // Apply initial theme
-    applyTheme(themeMode, colorTheme);
-  }, []);
+    loadPreferences();
+  }, [userId]);
 
   // Apply theme when mode or color changes
   useEffect(() => {
     if (!mounted) return;
     applyTheme(themeMode, colorTheme);
     
-    // Persist to localStorage
-    try {
-      localStorage.setItem('themeMode', themeMode);
-      localStorage.setItem('colorTheme', colorTheme);
-    } catch {
-      // Ignore
-    }
-  }, [themeMode, colorTheme, mounted, applyTheme]);
+    // Persist to Supabase
+    const persistPreferences = async () => {
+      try {
+        if (userId && !userId.startsWith('guest_')) {
+          await saveUserPreferences({
+            themeMode,
+            colorTheme
+          }, userId);
+        }
+      } catch (error) {
+        console.error('Failed to save theme preferences:', error);
+      }
+    };
+    
+    persistPreferences();
+  }, [themeMode, colorTheme, mounted, applyTheme, userId]);
 
   // Listen for system theme changes
   useEffect(() => {

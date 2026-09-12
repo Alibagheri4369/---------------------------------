@@ -82,10 +82,12 @@ export function AccountOwnershipView({
     const newService: ExternalServiceAccount = {
       id: `srv_${Date.now()}`,
       serviceName: newServiceName.trim(),
+      service: newServiceName.trim(),
       serviceCategory: newServiceCategory,
       owner: newServiceOwner,
       accessLevel: newAccessLevel,
       accountEmail: newAccountEmail.trim() || 'owner@clientdomain.ir',
+      notes: '',
       status: 'Pending Client',
       setupPhase: 0,
     };

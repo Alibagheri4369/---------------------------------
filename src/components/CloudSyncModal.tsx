@@ -139,9 +139,10 @@ CREATE TABLE IF NOT EXISTS public.user_notifications (
 );
 ALTER TABLE public.user_notifications ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own notifications" ON public.user_notifications FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own notifications" ON public.user_notifications FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can insert own notifications"
+  ON public.user_notifications FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 `;
-
   const copySql = () => {
     navigator.clipboard.writeText(sqlSchemaScript);
     setCopiedSql(true);
@@ -160,26 +161,25 @@ CREATE POLICY "Users can insert own notifications" ON public.user_notifications 
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <Database className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <Database className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>{t('cloudSyncTitle')}</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                  supabaseConnected
+                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                    : 'bg-amber-950 text-amber-300 border border-amber-800'
+                }`}>
+                  {supabaseConnected ? t('cloudSyncConnected') : t('cloudSyncIsolated')}
+                </span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {t('cloudSyncDataIsolation')}
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span>{t('cloudSyncTitle')}</span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-                supabaseConnected
-                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                  : 'bg-amber-950 text-amber-300 border border-amber-800'
-              }`}>
-                {supabaseConnected ? t('cloudSyncConnected') : t('cloudSyncIsolated')}
-              </span>
-            </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {t('cloudSyncDataIsolation')}
-            </p>
-          </div>
-        </div>
-        </div>
 
           <button
             onClick={onClose}
@@ -296,7 +296,7 @@ CREATE POLICY "Users can insert own notifications" ON public.user_notifications 
               onClick={onClose}
               className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs transition-colors cursor-pointer min-h-[44px]"
             >
-              بستن
+              {t('cloudSyncCloseButton')}
             </button>
             <button
               onClick={handleSaveAndTest}

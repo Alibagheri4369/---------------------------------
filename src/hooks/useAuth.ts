@@ -6,6 +6,7 @@ import {
   registerUser,
   logoutUser,
   updateUserProfile,
+  DEFAULT_GUEST_USER,
 } from '../services/authService';
 import { getSupabaseConfig, testSupabaseConnection } from '../services/supabaseClient';
 
@@ -61,23 +62,21 @@ export function useAuth() {
     const res = await loginUser(email, pass);
     if (res.success && res.user) {
       setUser(res.user);
-      return { success: true };
     }
-    return { success: false, error: res.error || 'خطا در ورود' };
+    return res;
   }, []);
 
   const register = useCallback(async (name: string, email: string, pass: string, role: string) => {
     const res = await registerUser(name, email, pass, role);
     if (res.success && res.user) {
       setUser(res.user);
-      return { success: true };
     }
-    return { success: false, error: res.error || 'خطا در ثبت‌نام' };
+    return res;
   }, []);
 
   const logout = useCallback(async () => {
     await logoutUser();
-    setUser(null);
+    setUser(DEFAULT_GUEST_USER);
   }, []);
 
   const updateProfile = useCallback(async (name: string, role: string, newPassword?: string) => {

@@ -5,7 +5,6 @@ import {
   Download, Printer, Save, X, Edit3, Hash
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useProjects } from '../hooks/useProjects';
 import { Project } from '../types';
 import {
   PricingCategory, ProjectPricingItem, FeatureLibrary, Invoice,
@@ -26,7 +25,7 @@ function generateId(): string {
 }
 
 // Default categories
-const DEFAULT_CATEGORIES: Omit<PricingCategory, 'id' | 'projectId' | 'userId' | 'createdAt' | 'updatedAt'>[] = [
+const DEFAULT_CATEGORIES: Omit<PricingCategory, 'id' | 'createdAt' | 'updatedAt'>[] = [
   { name: 'توسعه و کدنویسی', color: 'text-cyan-400', projectId: '', userId: '', },
   { name: 'راه‌اندازی و زیرساخت', color: 'text-emerald-400', projectId: '', userId: '' },
   { name: 'اتصالات و سرویس‌ها', color: 'text-amber-400', projectId: '', userId: '' },
@@ -49,14 +48,23 @@ interface PricingViewProps {
 }
 
 export function PricingView({ currentProject }: PricingViewProps) {
-  const { currentUser } = useAuth();
-  const { projects } = useProjects(currentUser);
+  const { user: currentUser } = useAuth();
+  const effectiveUserId = currentUser ? currentUser.id : 'guest_anonymous';
 
   // Project context
-  const [project] = useState<Project | null>(currentProject);
+  const project = currentProject;
   const [projectName, setProjectName] = useState(project?.title ?? '');
   const [projectClient, setProjectClient] = useState(project?.clientName ?? '');
   const [projectCreatedAt, setProjectCreatedAt] = useState(project?.createdAt ?? '');
+
+  // Keep project fields in sync when currentProject changes
+  useEffect(() => {
+    if (project) {
+      setProjectName(project.title);
+      setProjectClient(project.clientName);
+      setProjectCreatedAt(project.createdAt);
+    }
+  }, [project?.id, project?.title, project?.clientName]);
 
   // Price Scale
   const [priceScale, setPriceScale] = useState<number>(DEFAULT_PRICE_SCALE);
@@ -95,10 +103,10 @@ export function PricingView({ currentProject }: PricingViewProps) {
 
   // ==================== INITIALIZATION ====================
   useEffect(() => {
-    if (!currentUser || !project) return;
+    if (!project) return;
 
     // Load categories for this project
-    const savedCategories = getPricingCategories(currentUser.id, project.id);
+    const savedCategories = getPricingCategories(effectiveUserId, project.id);
     if (savedCategories.length > 0) {
       setCategories(savedCategories);
     } else {
@@ -107,70 +115,70 @@ export function PricingView({ currentProject }: PricingViewProps) {
         ...cat,
         id: generateId(),
         projectId: project.id,
-        userId: currentUser.id,
+        userId: effectiveUserId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));
-      defaultCats.forEach((cat) => savePricingCategory(currentUser.id, cat));
+      defaultCats.forEach((cat) => savePricingCategory(effectiveUserId, cat));
       setCategories(defaultCats);
     }
 
     // Load feature library
-    const lib = getFeatureLibrary(currentUser.id);
+    const lib = getFeatureLibrary(effectiveUserId);
     if (lib.length > 0) {
       setFeatureLibrary(lib);
     } else {
       // Seed default features
       DEFAULT_FEATURES.forEach((feat) => {
-        saveFeatureLibraryItem(currentUser.id, {
+        saveFeatureLibraryItem(effectiveUserId, {
           ...feat,
           id: generateId(),
           isGlobal: true,
-          userId: currentUser.id,
+          userId: effectiveUserId,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         });
       });
-      setFeatureLibrary(getFeatureLibrary(currentUser.id));
+      setFeatureLibrary(getFeatureLibrary(effectiveUserId));
     }
 
     // Load pricing items for this project
-    const items = getProjectPricingItems(currentUser.id, project.id);
+    const items = getProjectPricingItems(effectiveUserId, project.id);
     setPricingItems(items);
 
     // Load invoices
-    const invoices = getProjectInvoices(currentUser.id, project.id);
+    const invoices = getProjectInvoices(effectiveUserId, project.id);
     setGeneratedInvoices(invoices);
 
     // Set project info
     setProjectName(project.title);
     setProjectClient(project.clientName);
     setProjectCreatedAt(project.createdAt);
-  }, [currentUser, project]);
+  }, [effectiveUserId, project]);
 
   // ==================== CATEGORY MANAGEMENT ====================
   const handleAddCategory = (e: FormEvent) => {
     e.preventDefault();
-    if (!currentUser || !project || !newCategoryName.trim()) return;
+    if (!project || !newCategoryName.trim()) return;
 
     const newCat: PricingCategory = {
       id: generateId(),
       name: newCategoryName.trim(),
       color: `text-${['cyan', 'emerald', 'amber', 'purple', 'rose', 'teal'][Math.floor(Math.random() * 6)]}-400`,
       projectId: project.id,
-      userId: currentUser.id,
+      userId: effectiveUserId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    savePricingCategory(currentUser.id, newCat);
+    savePricingCategory(effectiveUserId, newCat);
     setCategories([...categories, newCat]);
     setNewCategoryName('');
     setShowAddCategory(false);
   };
 
   const handleDeleteCategory = (catId: string, catName: string) => {
-    if (!currentUser) return;
+    if (!project) return;
 
     // Check if category has pricing items
     const itemsInCat = pricingItems.filter((item) => item.categoryId === catId && item.projectId === project?.id);
@@ -179,7 +187,7 @@ export function PricingView({ currentProject }: PricingViewProps) {
       return;
     }
 
-    const result = deletePricingCategory(currentUser.id, catId, project!.id);
+    const result = deletePricingCategory(effectiveUserId, catId, project.id);
     if (result.success) {
       setCategories(categories.filter((c) => c.id !== catId));
     } else {
@@ -188,8 +196,8 @@ export function PricingView({ currentProject }: PricingViewProps) {
   };
 
   const handleConfirmDeleteCategory = (catId: string) => {
-    if (!currentUser) return;
-    const result = deletePricingCategory(currentUser.id, catId, project!.id);
+    if (!project) return;
+    const result = deletePricingCategory(effectiveUserId, catId, project.id);
     if (result.success) {
       setCategories(categories.filter((c) => c.id !== catId));
     }
@@ -200,7 +208,7 @@ export function PricingView({ currentProject }: PricingViewProps) {
   const selectedFeatures = pricingItems.filter((item) => item.isEnabled);
 
   const addFeatureToPricing = (feature: FeatureLibrary, categoryId?: string) => {
-    if (!currentUser || !project) return;
+    if (!project) return;
 
     // Check if feature already added to this project
     const exists = pricingItems.find(
@@ -223,20 +231,20 @@ export function PricingView({ currentProject }: PricingViewProps) {
       unit: 'مورد',
       description: feature.description,
       isEnabled: true,
-      userId: currentUser.id,
+      userId: effectiveUserId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    savePricingItem(currentUser.id, newItem);
+    savePricingItem(effectiveUserId, newItem);
     setPricingItems([...pricingItems, newItem]);
     setShowFeatureSearch(false);
     setFeatureSearchQuery('');
   };
 
   const removeFeatureFromPricing = (itemId: string) => {
-    if (!currentUser || !project) return;
-    deletePricingItem(currentUser.id, itemId);
+    if (!project) return;
+    deletePricingItem(effectiveUserId, itemId);
     setPricingItems(pricingItems.filter((item) => item.id !== itemId));
   };
 
@@ -246,7 +254,7 @@ export function PricingView({ currentProject }: PricingViewProps) {
     );
     setPricingItems(updated);
     updated.forEach((item) => {
-      if (item.id === itemId) savePricingItem(currentUser!, item);
+      if (item.id === itemId) savePricingItem(effectiveUserId, item);
     });
   };
 
@@ -257,7 +265,7 @@ export function PricingView({ currentProject }: PricingViewProps) {
     );
     setPricingItems(updated);
     const changedItem = updated.find((i) => i.id === itemId);
-    if (changedItem && currentUser) savePricingItem(currentUser, changedItem);
+    if (changedItem) savePricingItem(effectiveUserId, changedItem);
   };
 
   const updateItemQuantity = (itemId: string, quantity: number) => {
@@ -266,13 +274,13 @@ export function PricingView({ currentProject }: PricingViewProps) {
     );
     setPricingItems(updated);
     const changedItem = updated.find((i) => i.id === itemId);
-    if (changedItem && currentUser) savePricingItem(currentUser, changedItem);
+    if (changedItem) savePricingItem(effectiveUserId, changedItem);
   };
 
   // Custom feature creation
   const handleAddCustomFeature = (e: FormEvent) => {
     e.preventDefault();
-    if (!currentUser || !newFeatureName.trim()) return;
+    if (!newFeatureName.trim()) return;
 
     const realPrice = calculateRealPrice(newFeaturePrice, priceScale);
     const newFeature: FeatureLibrary = {
@@ -282,12 +290,12 @@ export function PricingView({ currentProject }: PricingViewProps) {
       price: realPrice,
       category: newFeatureCat,
       isGlobal: false,
-      userId: currentUser.id,
+      userId: effectiveUserId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    saveFeatureLibraryItem(currentUser.id, newFeature);
+    saveFeatureLibraryItem(effectiveUserId, newFeature);
     setFeatureLibrary([...featureLibrary, newFeature]);
 
     // Auto-add to pricing
@@ -303,11 +311,11 @@ export function PricingView({ currentProject }: PricingViewProps) {
       unit: 'مورد',
       description: newFeature.description,
       isEnabled: true,
-      userId: currentUser.id,
+      userId: effectiveUserId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    savePricingItem(currentUser.id, newItem);
+    savePricingItem(effectiveUserId, newItem);
     setPricingItems([...pricingItems, newItem]);
 
     // Reset form
@@ -362,14 +370,14 @@ export function PricingView({ currentProject }: PricingViewProps) {
 
   // ==================== INVOICE ====================
   const generateInvoice = () => {
-    if (!currentUser || !project) return;
+    if (!project) return;
 
     const invoiceNumber = generateInvoiceNumber();
     const items = pricingItems.filter((item) => item.projectId === project.id && item.isEnabled);
     const invoice: Invoice = {
       invoice_id: generateId(),
       project_id: project.id,
-      user_id: currentUser.id,
+      user_id: effectiveUserId,
       invoice_number: invoiceNumber,
       issue_date: new Date().toISOString(),
       subtotal: grandTotalValue.subTotal,
@@ -388,7 +396,7 @@ export function PricingView({ currentProject }: PricingViewProps) {
       due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     };
 
-    saveInvoice(currentUser.id, invoice);
+    saveInvoice(effectiveUserId, invoice);
     setGeneratedInvoices([...generatedInvoices, invoice]);
     setShowInvoice(true);
   };

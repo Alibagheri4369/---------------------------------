@@ -36,6 +36,19 @@ export const de: TranslationKeys = {
   quality: 'Qualität & Lieferung',
   business: 'Business',
   tools: 'Werkzeuge',
+  
+  // UI Elements
+  mainMenu: 'Hauptmenü',
+  menu: 'Menü',
+  smartNavigation: 'Intelligente Navigation',
+  selectProject: 'Projekt auswählen',
+  yourProjects: 'Ihre Projekte',
+  profileSection: 'Profilbereich',
+  default: 'Standard',
+  
+  // Account extended
+  accountDescription: 'Ihre Kontoinformationen und Projekte',
+  createProjectGuidanceFull: 'Um zu beginnen, erstellen Sie ein neues Projekt und starten Sie Ihre Entwicklungsreise',
 
   // Auth
   login: 'Anmelden',

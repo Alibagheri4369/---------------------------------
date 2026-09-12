@@ -26,6 +26,38 @@ export interface TranslationKeys {
   templates: string;
   profile: string;
   
+  // Navigation descriptions
+  whereAmIDescription: string;
+  roadmapDescription: string;
+  checklistDescription: string;
+  architectureDescription: string;
+  modulesDescription: string;
+  qaSecurityDescription: string;
+  ownershipDescription: string;
+  pricingDescription: string;
+  aiAssistantDescription: string;
+  templatesDescription: string;
+  
+  // Navigation categories
+  primary: string;
+  development: string;
+  quality: string;
+  business: string;
+  tools: string;
+  
+  // UI Elements
+  mainMenu: string;
+  menu: string;
+  smartNavigation: string;
+  selectProject: string;
+  yourProjects: string;
+  profileSection: string;
+  default: string;
+  
+  // Account extended
+  accountDescription: string;
+  createProjectGuidanceFull: string;
+  
   // Auth
   login: string;
   register: string;
@@ -333,7 +365,6 @@ export interface TranslationKeys {
   whereAmIReadyForNextPhase: string;
   whereAmIEnterNextPhase: string;
   whereAmINextPhaseTeaser: string;
-  whereAmINextPhase: string;
   whereAmILifecycleEnd: string;
   whereAmINextPhaseTitle: string;
   whereAmINextPhaseDelivery: string;
@@ -366,6 +397,45 @@ export interface TranslationKeys {
   phaseDetailViewNoteSaved: string;
   phaseDetailViewNotePlaceholder: string;
   phaseDetailViewSaveNoteButton: string;
+  
+  // Roadmap View
+  roadmapView: {
+    noProject: string;
+    noProjectDescription: string;
+    createFirstProject: string;
+    currentLocation: string;
+    phases: string;
+    standardPhases: string;
+    nextStep: string;
+    phase: string;
+    congratulations: string;
+    overallProgress: string;
+    completedTasks: string;
+    outOf: string;
+    tasks: string;
+    viewAndCheckTasks: string;
+    allPhases: string;
+    preCategory: string;
+    planningCategory: string;
+    designCategory: string;
+    developmentCategory: string;
+    integrationCategory: string;
+    qaCategory: string;
+    deploymentCategory: string;
+    maintenanceCategory: string;
+    applicablePhases: string;
+    showing: string;
+    roadmapPhases: string;
+    allStatus: string;
+    currentPhase: string;
+    remaining: string;
+    completed: string;
+    yourCurrentPhase: string;
+    completedCheckmark: string;
+    setAsCurrentPhase: string;
+    enterChecklist: string;
+    importantOutput: string;
+  };
 
   // ArchitectureView
   architectureViewNoProject: string;

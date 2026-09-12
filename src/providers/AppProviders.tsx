@@ -7,18 +7,20 @@ import type { UserPreferences } from '../types';
 interface ProvidersProps {
   children: ReactNode;
   initialPreferences?: Partial<UserPreferences>;
+  userId?: string;
 }
 
 export function AppProviders({ 
   children, 
-  initialPreferences 
+  initialPreferences,
+  userId
 }: ProvidersProps) {
   const themeMode = initialPreferences?.themeMode as ThemeMode || 'system';
   const colorTheme = initialPreferences?.colorTheme as ColorTheme || 'default';
   const language = initialPreferences?.language as AppLanguage || 'fa';
 
   return (
-    <ThemeProvider initialThemeMode={themeMode} initialColorTheme={colorTheme}>
+    <ThemeProvider initialThemeMode={themeMode} initialColorTheme={colorTheme} userId={userId}>
       <I18nProvider initialLanguage={language}>
         {children}
       </I18nProvider>

@@ -18,25 +18,20 @@ export function useProjects(currentUser: User | null) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const lastFailedOperationRef = useRef<(() => Promise<void>) | null>(null);
 
+  const effectiveUserId = currentUser ? currentUser.id : 'guest_anonymous';
+
   // Load user's projects whenever currentUser changes
   useEffect(() => {
     let isMounted = true;
 
     async function loadData() {
-      if (!currentUser) {
-        setProjects([]);
-        setActiveProjectId(null);
-        return;
-      }
-
       setLoading(true);
       try {
-        const userProjects = await fetchUserProjects(currentUser.id);
+        const userProjects = await fetchUserProjects(effectiveUserId);
         if (isMounted) {
           setProjects(userProjects);
           if (userProjects.length > 0) {
             setActiveProjectId((prev) => {
-              // If previous selected id is in the new user's projects, keep it
               if (prev && userProjects.some((p) => p.id === prev)) {
                 return prev;
               }
@@ -60,7 +55,7 @@ export function useProjects(currentUser: User | null) {
     return () => {
       isMounted = false;
     };
-  }, [currentUser?.id]);
+  }, [effectiveUserId]);
 
   const activeProject = projects.find((p) => p.id === activeProjectId) || null;
 
@@ -105,13 +100,11 @@ export function useProjects(currentUser: User | null) {
         techStack?: TechStackConfig;
       }
     ) => {
-      if (!currentUser) {
-        throw new Error('برای ایجاد پروژه ابتدا وارد حساب کاربری خود شوید.');
-      }
+      const userId = currentUser ? currentUser.id : 'guest_anonymous';
 
       const newProject: Project = {
         id: `proj_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        userId: currentUser.id,
+        userId,
         title,
         clientName,
         projectType,
@@ -127,61 +120,139 @@ export function useProjects(currentUser: User | null) {
         completedTasks: {},
         customTasks: {},
         phaseNotes: {},
-        services: [],
-        ownerships: [],
+        services: [
+          {
+            id: 'srv_domain_init',
+            serviceName: 'ثبت و تنظیم دامنه (.ir / .com)',
+            service: 'ثبت و تنظیم دامنه (.ir / .com)',
+            serviceCategory: 'Domain',
+            owner: 'Client',
+            accessLevel: 'Full Control / DNS',
+            accountEmail: 'owner@domain.ir',
+            notes: 'انتقال مالکیت در ایرنیک یا پنل ثبت دامنه بین‌المللی',
+            status: 'Pending Client',
+          },
+          {
+            id: 'srv_host_init',
+            serviceName: 'هاستینگ / سرور ابری پروداکشن',
+            service: 'هاستینگ / سرور ابری پروداکشن',
+            serviceCategory: 'Hosting / Cloud',
+            owner: 'Client',
+            accessLevel: 'SSH / Root Access',
+            accountEmail: 'owner@domain.ir',
+            notes: 'خریداری سرور توسط کارفرما و دعوت از توسعه‌دهنده به عنوان ادمین',
+            status: 'Pending Client',
+          },
+          {
+            id: 'srv_pay_init',
+            serviceName: 'درگاه پرداخت مستقیم / واسط بانکی',
+            service: 'درگاه پرداخت مستقیم / واسط بانکی',
+            serviceCategory: 'Payment',
+            owner: 'Client',
+            accessLevel: 'Merchant Key / API Portal',
+            accountEmail: 'owner@domain.ir',
+            notes: 'احراز هویت مالیاتی و دریافت اینماد و مرچنت‌کد',
+            status: 'Pending Client',
+          },
+          {
+            id: 'srv_sms_init',
+            serviceName: 'سامانه پیامک و اعتبار سنجی OTP',
+            service: 'سامانه پیامک و اعتبار سنجی OTP',
+            serviceCategory: 'SMS Gateway',
+            owner: 'Client',
+            accessLevel: 'API Key / Console',
+            accountEmail: 'owner@domain.ir',
+            notes: 'خرید پنل و دریافت خط خدماتی برای ارسال بدون بلک‌لیست',
+            status: 'Pending Client',
+          }
+        ],
+        ownerships: [
+          {
+            id: 'own_git_init',
+            category: 'کد و گیت',
+            item: 'انتقال سورس کامل ریپازیتوری',
+            title: 'انتقال ریپازیتوری گیت‌هاب / گیت‌لب',
+            status: 'Pending',
+            deadline: '',
+            notes: 'انتقال کامل سورس‌کد و تاریخچه کامیت‌ها به گیت‌هاب کارفرما',
+          },
+          {
+            id: 'own_db_init',
+            category: 'پایگاه داده',
+            item: 'انتقال دیتابیس و اعتبارسنجی‌ها',
+            title: 'پسوردهای روت و مستندات دیتابیس',
+            status: 'Pending',
+            deadline: '',
+            notes: 'تغییر کامل کلیدهای محرمانه، رمزهای عبور و تحویل فایل پشتیبان اولیه',
+          },
+          {
+            id: 'own_doc_init',
+            category: 'مستندات',
+            item: 'مستندات فنی و راهنمای API',
+            title: 'مستندات Swagger / Postman و راهنما',
+            status: 'Pending',
+            deadline: '',
+            notes: 'فایل نحوه دیپلوی، مستندات APIها و راهنمای ادمین سیستم',
+          },
+          {
+            id: 'own_adm_init',
+            category: 'پنل مدیریت',
+            item: 'پنل ادمین ارشد (Super Admin)',
+            title: 'اکانت ادمین ارشد نسخه پروداکشن',
+            status: 'Pending',
+            deadline: '',
+            notes: 'تنظیم اولین ایمیل کارفرما به عنوان ادمین ارشد سیستم و تغییر پسورد اولیه',
+          }
+        ],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
       await runMutation(async () => {
-        const created = await apiCreateProject(currentUser.id, newProject);
+        const created = await apiCreateProject(effectiveUserId, newProject);
         setProjects((prev) => [created, ...prev.filter((p) => p.id !== created.id)]);
         setActiveProjectId(created.id);
 
         // Record activity & notification
         await logActivity(
-          currentUser.id,
+          effectiveUserId,
           'ایجاد پروژه',
           `پروژه جدید «${created.title}» برای کارفرما «${created.clientName}» ثبت شد.`,
           created.id
         );
         await addNotification(
-          currentUser.id,
+          effectiveUserId,
           'پروژه جدید ایجاد شد',
-          `پروژه «${created.title}» با موفقیت به پایگاه داده اضافه شد.`,
+          `پروژه «${created.title}» با موفقیت اضافه شد.`,
           'success'
         );
       });
 
       return newProject;
     },
-    [currentUser, runMutation]
+    [effectiveUserId, runMutation]
   );
 
   // Update Project
   const modifyProject = useCallback(
     async (projectId: string, updates: Partial<Project>) => {
-      if (!currentUser) return;
-
       // Optimistic local state update
       setProjects((prev) =>
         prev.map((p) => (p.id === projectId ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p))
       );
 
       await runMutation(async () => {
-        await apiUpdateProject(currentUser.id, projectId, updates);
+        await apiUpdateProject(effectiveUserId, projectId, updates);
       });
     },
-    [currentUser, runMutation]
+    [effectiveUserId, runMutation]
   );
 
   // Delete Project
   const removeProject = useCallback(
     async (projectId: string) => {
-      if (!currentUser) return;
-
       await runMutation(async () => {
-        await apiDeleteProject(currentUser.id, projectId);
+        await apiDeleteProject(effectiveUserId, projectId);
         setProjects((prev) => {
           const filtered = prev.filter((p) => p.id !== projectId);
           if (activeProjectId === projectId) {
@@ -190,16 +261,16 @@ export function useProjects(currentUser: User | null) {
           return filtered;
         });
 
-        await logActivity(currentUser.id, 'حذف پروژه', `پروژه با شناسه ${projectId} حذف شد.`);
+        await logActivity(effectiveUserId, 'حذف پروژه', `پروژه با شناسه ${projectId} حذف شد.`);
       });
     },
-    [currentUser, activeProjectId, runMutation]
+    [effectiveUserId, activeProjectId, runMutation]
   );
 
   // Toggle checklist task
   const toggleTask = useCallback(
     async (taskId: string) => {
-      if (!activeProject || !currentUser) return;
+      if (!activeProject) return;
 
       const currentVal = Boolean(activeProject.completedTasks[taskId]);
       const updatedTasks = {
@@ -214,20 +285,20 @@ export function useProjects(currentUser: User | null) {
       // Log progress activity if completing task
       if (!currentVal) {
         logActivity(
-          currentUser.id,
+          effectiveUserId,
           'تکمیل تسک',
           `تسک [${taskId}] در پروژه «${activeProject.title}» تکمیل شد.`,
           activeProject.id
         );
       }
     },
-    [activeProject, currentUser, modifyProject]
+    [activeProject, effectiveUserId, modifyProject]
   );
 
   // Add custom task
   const addCustomTask = useCallback(
     async (phaseId: number, text: string) => {
-      if (!activeProject || !currentUser) return;
+      if (!activeProject) return;
 
       const list = activeProject.customTasks[phaseId] || [];
       const newTask: CustomTask = {
@@ -245,13 +316,13 @@ export function useProjects(currentUser: User | null) {
         },
       });
     },
-    [activeProject, currentUser, modifyProject]
+    [activeProject, modifyProject]
   );
 
   // Toggle custom task
   const toggleCustomTask = useCallback(
     async (phaseId: number, customTaskId: string) => {
-      if (!activeProject || !currentUser) return;
+      if (!activeProject) return;
 
       const list = activeProject.customTasks[phaseId] || [];
       const updatedList = list.map((ct) =>
@@ -265,13 +336,13 @@ export function useProjects(currentUser: User | null) {
         },
       });
     },
-    [activeProject, currentUser, modifyProject]
+    [activeProject, modifyProject]
   );
 
   // Delete custom task
   const deleteCustomTask = useCallback(
     async (phaseId: number, customTaskId: string) => {
-      if (!activeProject || !currentUser) return;
+      if (!activeProject) return;
 
       const list = activeProject.customTasks[phaseId] || [];
       await modifyProject(activeProject.id, {
@@ -281,13 +352,13 @@ export function useProjects(currentUser: User | null) {
         },
       });
     },
-    [activeProject, currentUser, modifyProject]
+    [activeProject, modifyProject]
   );
 
   // Update phase note
   const updatePhaseNote = useCallback(
     async (phaseId: number, note: string) => {
-      if (!activeProject || !currentUser) return;
+      if (!activeProject) return;
 
       await modifyProject(activeProject.id, {
         phaseNotes: {
@@ -296,26 +367,26 @@ export function useProjects(currentUser: User | null) {
         },
       });
     },
-    [activeProject, currentUser, modifyProject]
+    [activeProject, modifyProject]
   );
 
   // Set current active phase
   const setCurrentPhase = useCallback(
     async (phaseId: number) => {
-      if (!activeProject || !currentUser) return;
+      if (!activeProject) return;
 
       await modifyProject(activeProject.id, {
         currentPhaseId: phaseId,
       });
 
       logActivity(
-        currentUser.id,
+        effectiveUserId,
         'تغییر فاز فعال',
         `فاز جاری پروژه «${activeProject.title}» به فاز ${phaseId} تغییر یافت.`,
         activeProject.id
       );
     },
-    [activeProject, currentUser, modifyProject]
+    [activeProject, effectiveUserId, modifyProject]
   );
 
   return {

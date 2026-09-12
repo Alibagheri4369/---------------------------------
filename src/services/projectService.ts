@@ -59,40 +59,50 @@ function mapProjectToDbRecord(project: Project, userId: string): any {
 }
 
 /**
- * Fetch all projects belonging exclusively to the authenticated user
+ * Fetch all projects belonging to the specified user (Supabase with partitioned LocalStorage fallback)
  */
 export async function fetchUserProjects(userId: string): Promise<Project[]> {
   if (!userId) return [];
 
-  const supabase = getSupabaseClient();
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false });
+  // Local partitioned storage fallback for guests or when Supabase is unconfigured
+  const getLocalProjects = () => userPartitionStorage.getItem<Project[]>(userId, 'user_projects', []);
 
-      if (!error && Array.isArray(data)) {
-        const loadedProjects = data.map(mapDbRecordToProject);
-        // Cache to user partition
-        userPartitionStorage.setItem(userId, 'projects', loadedProjects);
-        return loadedProjects;
-      }
-      if (error) {
-        console.warn('Supabase fetch projects error:', error.message);
-      }
-    } catch (e) {
-      console.error('Error fetching projects from Supabase', e);
-    }
+  if (userId.startsWith('guest_')) {
+    return getLocalProjects();
   }
 
-  // Load from isolated user partition storage
-  return userPartitionStorage.getItem<Project[]>(userId, 'projects', []);
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return getLocalProjects();
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.warn('Supabase fetch projects failed, falling back to user storage:', error.message);
+      return getLocalProjects();
+    }
+
+    if (!Array.isArray(data)) {
+      return getLocalProjects();
+    }
+
+    const remoteProjects = data.map(mapDbRecordToProject);
+    userPartitionStorage.setItem(userId, 'user_projects', remoteProjects);
+    return remoteProjects;
+  } catch (e: any) {
+    console.warn('Error fetching projects from Supabase, using user storage:', e);
+    return getLocalProjects();
+  }
 }
 
 /**
- * Create a new user-owned project
+ * Create a new user-owned project (Supabase with LocalStorage fallback)
  */
 export async function createProject(userId: string, newProject: Project): Promise<Project> {
   const projectWithOwner: Project = {
@@ -101,27 +111,42 @@ export async function createProject(userId: string, newProject: Project): Promis
     updatedAt: new Date().toISOString(),
   };
 
-  const supabase = getSupabaseClient();
-  if (supabase) {
-    try {
-      const dbPayload = mapProjectToDbRecord(projectWithOwner, userId);
-      dbPayload.created_at = projectWithOwner.createdAt;
-      
-      const { error } = await supabase.from('projects').insert(dbPayload);
-      if (error) {
-        console.warn('Supabase create project error:', error.message);
-      }
-    } catch (e) {
-      console.error('Error saving project to Supabase', e);
-    }
+  const saveLocal = (proj: Project) => {
+    const existing = userPartitionStorage.getItem<Project[]>(userId, 'user_projects', []);
+    const updatedList = [proj, ...existing.filter((p) => p.id !== proj.id)];
+    userPartitionStorage.setItem(userId, 'user_projects', updatedList);
+  };
+
+  if (userId.startsWith('guest_')) {
+    saveLocal(projectWithOwner);
+    return projectWithOwner;
   }
 
-  // Update isolated user storage partition
-  const currentList = userPartitionStorage.getItem<Project[]>(userId, 'projects', []);
-  const updatedList = [projectWithOwner, ...currentList.filter((p) => p.id !== projectWithOwner.id)];
-  userPartitionStorage.setItem(userId, 'projects', updatedList);
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    saveLocal(projectWithOwner);
+    return projectWithOwner;
+  }
 
-  return projectWithOwner;
+  try {
+    const dbPayload = mapProjectToDbRecord(projectWithOwner, userId);
+    dbPayload.created_at = projectWithOwner.createdAt;
+
+    const { error } = await supabase.from('projects').insert(dbPayload);
+
+    if (error) {
+      console.warn('Supabase create project failed, saving to user storage:', error.message);
+      saveLocal(projectWithOwner);
+      return projectWithOwner;
+    }
+
+    saveLocal(projectWithOwner);
+    return projectWithOwner;
+  } catch (e: any) {
+    console.warn('Error saving project to Supabase, saving locally:', e);
+    saveLocal(projectWithOwner);
+    return projectWithOwner;
+  }
 }
 
 /**
@@ -132,64 +157,103 @@ export async function updateProject(
   projectId: string,
   updates: Partial<Project>
 ): Promise<Project | null> {
-  const currentList = userPartitionStorage.getItem<Project[]>(userId, 'projects', []);
-  const target = currentList.find((p) => p.id === projectId);
-  if (!target) return null;
-
-  const updatedProject: Project = {
-    ...target,
-    ...updates,
-    updatedAt: new Date().toISOString(),
+  const updateLocal = (): Project | null => {
+    const existing = userPartitionStorage.getItem<Project[]>(userId, 'user_projects', []);
+    const idx = existing.findIndex((p) => p.id === projectId);
+    if (idx === -1) return null;
+    const updated = { ...existing[idx], ...updates, updatedAt: new Date().toISOString() };
+    existing[idx] = updated;
+    userPartitionStorage.setItem(userId, 'user_projects', existing);
+    return updated;
   };
 
-  const supabase = getSupabaseClient();
-  if (supabase) {
-    try {
-      const dbPayload = mapProjectToDbRecord(updatedProject, userId);
-      const { error } = await supabase
-        .from('projects')
-        .update(dbPayload)
-        .eq('id', projectId)
-        .eq('user_id', userId);
-
-      if (error) {
-        console.warn('Supabase update project error:', error.message);
-      }
-    } catch (e) {
-      console.error('Error updating project in Supabase', e);
-    }
+  if (userId.startsWith('guest_')) {
+    return updateLocal();
   }
 
-  // Update user partition storage
-  const newList = currentList.map((p) => (p.id === projectId ? updatedProject : p));
-  userPartitionStorage.setItem(userId, 'projects', newList);
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return updateLocal();
+  }
 
-  return updatedProject;
+  try {
+    const { data: currentData, error: fetchError } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', projectId)
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError || !currentData) {
+      return updateLocal();
+    }
+
+    const currentProject = mapDbRecordToProject(currentData);
+    const updatedProject: Project = {
+      ...currentProject,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const dbPayload = mapProjectToDbRecord(updatedProject, userId);
+    const { error } = await supabase
+      .from('projects')
+      .update(dbPayload)
+      .eq('id', projectId)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.warn('Supabase update failed, updating locally:', error.message);
+      return updateLocal();
+    }
+
+    updateLocal();
+    return updatedProject;
+  } catch (e: any) {
+    console.warn('Error updating project in Supabase, using local:', e);
+    return updateLocal();
+  }
 }
 
 /**
  * Delete a project
  */
 export async function deleteProject(userId: string, projectId: string): Promise<boolean> {
-  const supabase = getSupabaseClient();
-  if (supabase) {
-    try {
-      const { error } = await supabase
-        .from('projects')
-        .delete()
-        .eq('id', projectId)
-        .eq('user_id', userId);
+  const deleteLocal = () => {
+    const existing = userPartitionStorage.getItem<Project[]>(userId, 'user_projects', []);
+    const filtered = existing.filter((p) => p.id !== projectId);
+    userPartitionStorage.setItem(userId, 'user_projects', filtered);
+    return true;
+  };
 
-      if (error) {
-        console.warn('Supabase delete project error:', error.message);
-      }
-    } catch (e) {
-      console.error('Error deleting project from Supabase', e);
-    }
+  if (userId.startsWith('guest_')) {
+    return deleteLocal();
   }
 
-  const currentList = userPartitionStorage.getItem<Project[]>(userId, 'projects', []);
-  const filtered = currentList.filter((p) => p.id !== projectId);
-  userPartitionStorage.setItem(userId, 'projects', filtered);
-  return true;
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return deleteLocal();
+  }
+
+  try {
+    const { error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', projectId)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.warn('Supabase delete failed, removing locally:', error.message);
+      deleteLocal();
+      return true;
+    }
+
+    deleteLocal();
+    return true;
+  } catch (e: any) {
+    console.warn('Error deleting project from Supabase, removing locally:', e);
+    deleteLocal();
+    return true;
+  }
 }
+

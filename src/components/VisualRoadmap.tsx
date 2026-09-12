@@ -40,10 +40,10 @@ export function VisualRoadmap({
       <div className="p-8 sm:p-14 text-center bg-slate-900/90 border border-slate-800 rounded-3xl space-y-4 text-right animate-fade-in">
         <Compass className="w-14 h-14 text-cyan-400 mx-auto" />
         <h2 className="text-lg sm:text-xl font-bold text-white text-center">
-          {t('roadmap.noProject')}
+          {t('roadmapView.noProject')}
         </h2>
         <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto text-center leading-relaxed">
-          {t('roadmap.noProjectDescription')}
+          {t('roadmapView.noProjectDescription')}
         </p>
         {onOpenNewProjectModal && (
           <div className="pt-2 text-center">
@@ -51,7 +51,7 @@ export function VisualRoadmap({
               onClick={onOpenNewProjectModal}
               className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl text-xs shadow-lg cursor-pointer min-h-[44px]"
             >
-              {t('roadmap.createFirstProject')}
+              {t('roadmapView.createFirstProject')}
             </button>
           </div>
         )}
@@ -136,7 +136,7 @@ export function VisualRoadmap({
           <div className="space-y-2 max-w-2xl text-right">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              {t('roadmap.currentLocation')} {activePhase.number} {t('roadmap.phases')} {roadmap.length} {t('roadmap.standardPhases')}
+              {t('roadmapView.currentLocation')} {activePhase.number} {t('roadmapView.phases')} {roadmap.length} {t('roadmapView.standardPhases')}
             </div>
 
             <h2 className="text-xl md:text-2xl font-black text-white">
@@ -149,15 +149,15 @@ export function VisualRoadmap({
             </p>
 
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-              <span className="text-slate-400">{t('roadmap.nextStep')}:</span>
+              <span className="text-slate-400">{t('roadmapView.nextStep')}:</span>
               {nextPhase ? (
                 <span className="bg-slate-800 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700 flex items-center gap-1 font-medium">
                   <ArrowLeft className="w-3 h-3 text-cyan-400" />
-                  {t('roadmap.phase')} {nextPhase.number}: {nextPhase.title}
+                  {t('roadmapView.phase')} {nextPhase.number}: {nextPhase.title}
                 </span>
               ) : (
                 <span className="bg-emerald-950 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-800">
-                  {t('roadmap.congratulations')}
+                  {t('roadmapView.congratulations')}
                 </span>
               )}
             </div>
@@ -166,7 +166,7 @@ export function VisualRoadmap({
           {/* Progress Gauge & Action */}
           <div className="w-full lg:w-72 bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">{t('roadmap.overallProgress')}:</span>
+              <span className="text-slate-400">{t('roadmapView.overallProgress')}:</span>
               <span className="font-bold text-cyan-400 text-sm">{overallPercentage}٪</span>
             </div>
 
@@ -179,15 +179,15 @@ export function VisualRoadmap({
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <span>{completedTasksCount} {t('roadmap.completedTasks')}</span>
-              <span>{t('roadmap.outOf')} {totalTasks} {t('roadmap.tasks')}</span>
+              <span>{completedTasksCount} {t('roadmapView.completedTasks')}</span>
+              <span>{t('roadmapView.outOf')} {totalTasks} {t('roadmapView.tasks')}</span>
             </div>
 
             <button
               onClick={() => onSelectPhase(activePhase.id)}
               className="w-full mt-1 py-2 px-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-cyan-600/20 cursor-pointer"
             >
-              <span>{t('roadmap.viewAndCheckTasks')}</span>
+              <span>{t('roadmapView.viewAndCheckTasks')}</span>
               <ChevronLeft className="w-4 h-4" />
             </button>
           </div>
@@ -197,15 +197,15 @@ export function VisualRoadmap({
       {/* Category Filter Pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
         {[
-          { id: 'all', label: t('roadmap.allPhases') },
-          { id: 'Pre', label: t('roadmap.preCategory') },
-          { id: 'Planning', label: t('roadmap.planningCategory') },
-          { id: 'Design', label: t('roadmap.designCategory') },
-          { id: 'Development', label: t('roadmap.developmentCategory') },
-          { id: 'Integration', label: t('roadmap.integrationCategory') },
-          { id: 'QA', label: t('roadmap.qaCategory') },
-          { id: 'Deployment', label: t('roadmap.deploymentCategory') },
-          { id: 'Maintenance', label: t('roadmap.maintenanceCategory') },
+          { id: 'all', label: t('roadmapView.allPhases') },
+          { id: 'Pre', label: t('roadmapView.preCategory') },
+          { id: 'Planning', label: t('roadmapView.planningCategory') },
+          { id: 'Design', label: t('roadmapView.designCategory') },
+          { id: 'Development', label: t('roadmapView.developmentCategory') },
+          { id: 'Integration', label: t('roadmapView.integrationCategory') },
+          { id: 'QA', label: t('roadmapView.qaCategory') },
+          { id: 'Deployment', label: t('roadmapView.deploymentCategory') },
+          { id: 'Maintenance', label: t('roadmapView.maintenanceCategory') },
         ].map((c) => (
           <button
             key={c.id}
@@ -225,8 +225,8 @@ export function VisualRoadmap({
       <div className="flex flex-wrap items-center justify-between gap-3 pb-1 border-b border-slate-800">
         <div className="flex items-center gap-1.5 text-xs text-slate-300">
           <Compass className="w-4 h-4 text-cyan-400" />
-          <span className="font-bold text-white">{t('roadmap.applicablePhases')}:</span>
-          <span className="text-slate-400">{t('roadmap.showing', { count: filteredPhases.length })} {t('roadmap.outOf')} {roadmap.length} {t('roadmap.roadmapPhases')}</span>
+          <span className="font-bold text-white">{t('roadmapView.applicablePhases')}:</span>
+          <span className="text-slate-400">{t('roadmapView.showing')} {filteredPhases.length} {t('roadmapView.outOf')} {roadmap.length} {t('roadmapView.roadmapPhases')}</span>
         </div>
 
         <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
@@ -236,7 +236,7 @@ export function VisualRoadmap({
               statusFilter === 'all' ? 'bg-cyan-600 text-white font-medium' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            {t('roadmap.allStatus')}
+            {t('roadmapView.allStatus')}
           </button>
           <button
             onClick={() => setStatusFilter('in_progress')}
@@ -244,7 +244,7 @@ export function VisualRoadmap({
               statusFilter === 'in_progress' ? 'bg-cyan-600 text-white font-medium' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            {t('roadmap.currentPhase')}
+            {t('roadmapView.currentPhase')}
           </button>
           <button
             onClick={() => setStatusFilter('remaining')}
@@ -252,7 +252,7 @@ export function VisualRoadmap({
               statusFilter === 'remaining' ? 'bg-cyan-600 text-white font-medium' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            {t('roadmap.remaining')}
+            {t('roadmapView.remaining')}
           </button>
           <button
             onClick={() => setStatusFilter('done')}
@@ -260,7 +260,7 @@ export function VisualRoadmap({
               statusFilter === 'done' ? 'bg-cyan-600 text-white font-medium' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            {t('roadmap.completed')}
+            {t('roadmapView.completed')}
           </button>
         </div>
       </div>
@@ -320,12 +320,12 @@ export function VisualRoadmap({
 
                       {isCurrent && (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 animate-pulse">
-                          {t('roadmap.yourCurrentPhase')}
+                          {t('roadmapView.yourCurrentPhase')}
                         </span>
                       )}
                       {isFullyDone && (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                          {t('roadmap.completedCheckmark')}
+                          {t('roadmapView.completedCheckmark')}
                         </span>
                       )}
                     </div>
@@ -337,7 +337,7 @@ export function VisualRoadmap({
                     {/* Deliverables / Outputs badges */}
                     {phase.deliverables && phase.deliverables.length > 0 && (
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                        <span className="text-[11px] text-slate-400">{t('roadmap.importantOutput')}:</span>
+                        <span className="text-[11px] text-slate-400">{t('roadmapView.importantOutput')}:</span>
                         {phase.deliverables.map((d, i) => (
                           <span
                             key={i}
@@ -376,7 +376,7 @@ export function VisualRoadmap({
                         className="flex-1 sm:flex-initial px-3 py-2.5 rounded-xl text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-750 border border-slate-700 transition-colors cursor-pointer min-h-[44px] flex items-center justify-center font-medium"
                         title="تنظیم به عنوان موقعیت فعلی در پروژه"
                       >
-                        {t('roadmap.setAsCurrentPhase')}
+                        {t('roadmapView.setAsCurrentPhase')}
                       </button>
                     )}
 
@@ -388,7 +388,7 @@ export function VisualRoadmap({
                           : 'bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700'
                       }`}
                     >
-                      <span>{t('roadmap.enterChecklist')}</span>
+                      <span>{t('roadmapView.enterChecklist')}</span>
                       <ChevronLeft className="w-4 h-4" />
                     </button>
                   </div>

@@ -1,26 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Navbar, NavTabType } from './components/Navbar';
-import { VisualRoadmap } from './components/VisualRoadmap';
-import { PhaseDetailView } from './components/PhaseDetailView';
-import { WhereAmIWidget } from './components/WhereAmIWidget';
-import { ArchitectureView } from './components/ArchitectureView';
-import { ModulesManagerView } from './components/ModulesManagerView';
-import { QASecurityView } from './components/QASecurityView';
-import { AIAssistantView } from './components/AIAssistantView';
-import { AccountOwnershipView } from './components/AccountOwnershipView';
-import { PricingView } from './components/PricingView';
-import { TemplatesView } from './components/TemplatesView';
-import { UserProfileView, ProfileSubSection } from './components/UserProfileView';
-import { AuthModal } from './components/AuthModal';
-import { NewProjectModal } from './components/NewProjectModal';
-import { CloudSyncModal } from './components/CloudSyncModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { Loader2 } from 'lucide-react';
+
+// Lazy load heavy components for better performance
+const VisualRoadmap = lazy(() => import('./components/VisualRoadmap').then(m => ({ default: m.VisualRoadmap })));
+const PhaseDetailView = lazy(() => import('./components/PhaseDetailView').then(m => ({ default: m.PhaseDetailView })));
+const WhereAmIWidget = lazy(() => import('./components/WhereAmIWidget').then(m => ({ default: m.WhereAmIWidget })));
+const ArchitectureView = lazy(() => import('./components/ArchitectureView').then(m => ({ default: m.ArchitectureView })));
+const ModulesManagerView = lazy(() => import('./components/ModulesManagerView').then(m => ({ default: m.ModulesManagerView })));
+const QASecurityView = lazy(() => import('./components/QASecurityView').then(m => ({ default: m.QASecurityView })));
+const AIAssistantView = lazy(() => import('./components/AIAssistantView').then(m => ({ default: m.AIAssistantView })));
+const AccountOwnershipView = lazy(() => import('./components/AccountOwnershipView').then(m => ({ default: m.AccountOwnershipView })));
+const PricingView = lazy(() => import('./components/PricingView').then(m => ({ default: m.PricingView })));
+const TemplatesView = lazy(() => import('./components/TemplatesView').then(m => ({ default: m.TemplatesView })));
+const UserProfileView = lazy(() => import('./components/UserProfileView').then(m => ({ default: m.UserProfileView })));
+const AuthModal = lazy(() => import('./components/AuthModal').then(m => ({ default: m.AuthModal })));
+const NewProjectModal = lazy(() => import('./components/NewProjectModal').then(m => ({ default: m.NewProjectModal })));
+const CloudSyncModal = lazy(() => import('./components/CloudSyncModal').then(m => ({ default: m.CloudSyncModal })));
+
+// Import ProfileSubSection type
+import type { ProfileSubSection } from './components/UserProfileView';
 import { useAuth } from './hooks/useAuth';
 import { useProjects } from './hooks/useProjects';
+import { useSessionTimeout } from './hooks/useSessionTimeout';
 import { getUserPreferences, saveUserPreferences, DEFAULT_PREFERENCES } from './services/preferenceService';
 import { TechStackConfig, BusinessModel, ProjectComplexity, UserPreferences } from './types';
 import { Cloud, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 import { I18nProvider } from './i18n/I18nProvider';
 import { ThemeProvider } from './theme/ThemeProvider';
+import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   // Real user authentication hook (Supabase Auth + fallback user session)
@@ -56,6 +65,17 @@ export default function App() {
     updatePhaseNote: handleUpdatePhaseNote,
     setCurrentPhase: handleSetCurrentPhase,
   } = useProjects(currentUser);
+
+  // Session timeout management (فقط برای کاربران واقعی)
+  useSessionTimeout({
+    timeout: 30 * 60 * 1000, // 30 minutes
+    warningTime: 2 * 60 * 1000, // 2 minutes warning
+    enabled: currentUser !== null && !currentUser.id.startsWith('guest_'),
+    onTimeout: () => {
+      handleLogout();
+      setIsAuthModalOpen(false);
+    },
+  });
 
   // Selected phase for detail view (synced with currentProject)
   const [selectedPhaseId, setSelectedPhaseId] = useState<number>(() => currentProject?.currentPhaseId ?? 0);
@@ -180,10 +200,68 @@ export default function App() {
     setIsAuthModalOpen(true);
   };
 
+  // Loading fallback component for lazy-loaded components
+  const LoadingFallback = () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex flex-col items-center gap-3">
+        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+        <p className="text-sm text-slate-400">در حال بارگذاری...</p>
+      </div>
+    </div>
+  );
+
   return (
-    <ThemeProvider initialThemeMode={userPreferences.themeMode} initialColorTheme={userPreferences.colorTheme}>
-      <I18nProvider initialLanguage={userPreferences.language}>
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Vazirmatn',system-ui,sans-serif]">
+    <ErrorBoundary>
+      <ThemeProvider 
+        initialThemeMode={userPreferences.themeMode} 
+        initialColorTheme={userPreferences.colorTheme}
+        userId={currentUser?.id}
+      >
+        <I18nProvider 
+          initialLanguage={userPreferences.language}
+          userId={currentUser?.id}
+        >
+          {/* Toast Notifications */}
+          <Toaster
+            position="bottom-right"
+            reverseOrder={false}
+            gutter={8}
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#1e293b',
+                color: '#f1f5f9',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                fontSize: '14px',
+                maxWidth: '420px',
+                border: '1px solid #334155',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)',
+              },
+              success: {
+                duration: 3000,
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: '#f1f5f9',
+                },
+              },
+              error: {
+                duration: 5000,
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#f1f5f9',
+                },
+              },
+              loading: {
+                iconTheme: {
+                  primary: '#06b6d4',
+                  secondary: '#f1f5f9',
+                },
+              },
+            }}
+          />
+          
+          <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Vazirmatn',system-ui,sans-serif]">
           {/* Top Main Navigation */}
           <Navbar
             currentUser={currentUser}
@@ -209,110 +287,112 @@ export default function App() {
 
           {/* Main Content Area */}
           <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 md:py-8 pb-24 lg:pb-8">
-            {/* Tab 1: Where Am I? (GPS Universal Widget) */}
-            {activeTab === 'whereAmI' && (
-              <WhereAmIWidget
-                currentProject={currentProject}
-                onSelectPhase={handleSelectPhase}
-                onSetCurrentPhase={handleSetCurrentPhase}
-                onToggleTask={handleToggleTask}
-                onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
-              />
-            )}
+            <Suspense fallback={<LoadingFallback />}>
+              {/* Tab 1: Where Am I? (GPS Universal Widget) */}
+              {activeTab === 'whereAmI' && (
+                <WhereAmIWidget
+                  currentProject={currentProject}
+                  onSelectPhase={handleSelectPhase}
+                  onSetCurrentPhase={handleSetCurrentPhase}
+                  onToggleTask={handleToggleTask}
+                  onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
+                />
+              )}
 
-            {/* Tab 2: Visual Roadmap (All 25 Universal Lifecycle Phases) */}
-            {activeTab === 'roadmap' && (
-              <VisualRoadmap
-                currentProject={currentProject}
-                onSelectPhase={handleSelectPhase}
-                onSetCurrentPhase={handleSetCurrentPhase}
-                onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
-              />
-            )}
+              {/* Tab 2: Visual Roadmap (All 25 Universal Lifecycle Phases) */}
+              {activeTab === 'roadmap' && (
+                <VisualRoadmap
+                  currentProject={currentProject}
+                  onSelectPhase={handleSelectPhase}
+                  onSetCurrentPhase={handleSetCurrentPhase}
+                  onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
+                />
+              )}
 
-            {/* Tab 3: Detailed Phase Checklist with Injected Modules */}
-            {activeTab === 'checklist' && (
-              <PhaseDetailView
-                phaseId={selectedPhaseId}
-                currentProject={currentProject}
-                onToggleTask={handleToggleTask}
-                onToggleCustomTask={handleToggleCustomTask}
-                onAddCustomTask={handleAddCustomTask}
-                onDeleteCustomTask={handleDeleteCustomTask}
-                onUpdatePhaseNote={handleUpdatePhaseNote}
-                onSelectPhase={(id) => setSelectedPhaseId(id)}
-                onSetCurrentPhase={handleSetCurrentPhase}
-                onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
-              />
-            )}
+              {/* Tab 3: Detailed Phase Checklist with Injected Modules */}
+              {activeTab === 'checklist' && (
+                <PhaseDetailView
+                  phaseId={selectedPhaseId}
+                  currentProject={currentProject}
+                  onToggleTask={handleToggleTask}
+                  onToggleCustomTask={handleToggleCustomTask}
+                  onAddCustomTask={handleAddCustomTask}
+                  onDeleteCustomTask={handleDeleteCustomTask}
+                  onUpdatePhaseNote={handleUpdatePhaseNote}
+                  onSelectPhase={(id) => setSelectedPhaseId(id)}
+                  onSetCurrentPhase={handleSetCurrentPhase}
+                  onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
+                />
+              )}
 
-            {/* Tab 4: Interactive Architecture & Tech Stack Configurator */}
-            {activeTab === 'architecture' && (
-              <ArchitectureView
-                currentProject={currentProject}
-                onUpdateTechStack={handleUpdateTechStack}
-                onUpdateRoles={handleUpdateRoles}
-                onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
-              />
-            )}
+              {/* Tab 4: Interactive Architecture & Tech Stack Configurator */}
+              {activeTab === 'architecture' && (
+                <ArchitectureView
+                  currentProject={currentProject}
+                  onUpdateTechStack={handleUpdateTechStack}
+                  onUpdateRoles={handleUpdateRoles}
+                  onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
+                />
+              )}
 
-            {/* Tab 5: 40+ Modules & Feature Manager */}
-            {activeTab === 'modules' && (
-              <ModulesManagerView
-                currentProject={currentProject}
-                onToggleModule={handleToggleModule}
-                onSetModules={handleSetModules}
-                onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
-              />
-            )}
+              {/* Tab 5: 40+ Modules & Feature Manager */}
+              {activeTab === 'modules' && (
+                <ModulesManagerView
+                  currentProject={currentProject}
+                  onToggleModule={handleToggleModule}
+                  onSetModules={handleSetModules}
+                  onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
+                />
+              )}
 
-            {/* Tab 6: Universal QA, OWASP Security, Performance & SEO Engine */}
-            {activeTab === 'qa_security' && (
-              <QASecurityView
-                currentProject={currentProject}
-                onToggleTask={handleToggleTask}
-                onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
-              />
-            )}
+              {/* Tab 6: Universal QA, OWASP Security, Performance & SEO Engine */}
+              {activeTab === 'qa_security' && (
+                <QASecurityView
+                  currentProject={currentProject}
+                  onToggleTask={handleToggleTask}
+                  onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
+                />
+              )}
 
-            {/* Tab 7: Account Ownership Matrix & Handover Guide */}
-            {activeTab === 'ownership' && (
-              <AccountOwnershipView
-                currentProject={currentProject}
-                onUpdateServices={handleUpdateServices}
-                onUpdateOwnerships={handleUpdateOwnerships}
-                onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
-              />
-            )}
+              {/* Tab 7: Account Ownership Matrix & Handover Guide */}
+              {activeTab === 'ownership' && (
+                <AccountOwnershipView
+                  currentProject={currentProject}
+                  onUpdateServices={handleUpdateServices}
+                  onUpdateOwnerships={handleUpdateOwnerships}
+                  onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
+                />
+              )}
 
-            {/* Tab 8: 3-Tier Pricing Model Calculator & Proposal Generator */}
-            {activeTab === 'pricing' && <PricingView currentProject={currentProject} />}
+              {/* Tab 8: 3-Tier Pricing Model Calculator & Proposal Generator */}
+              {activeTab === 'pricing' && <PricingView currentProject={currentProject} />}
 
-            {/* Tab 9: AI Technical Advisor & Dynamic Risk Analyzer */}
-            {activeTab === 'ai_assistant' && (
-              <AIAssistantView
-                currentProject={currentProject}
-                onNavigateToPhase={handleSelectPhase}
-                onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
-              />
-            )}
+              {/* Tab 9: AI Technical Advisor & Dynamic Risk Analyzer */}
+              {activeTab === 'ai_assistant' && (
+                <AIAssistantView
+                  currentProject={currentProject}
+                  onNavigateToPhase={handleSelectPhase}
+                  onOpenNewProjectModal={() => setIsNewProjectModalOpen(true)}
+                />
+              )}
 
-            {/* Tab 10: Master Checklist & Markdown Deliverables Templates */}
-            {activeTab === 'templates' && <TemplatesView />}
+              {/* Tab 10: Master Checklist & Markdown Deliverables Templates */}
+              {activeTab === 'templates' && <TemplatesView />}
 
-            {/* Tab 11: Master Profile, Settings, Appearance, Product Guide & About */}
-            {activeTab === 'profile' && (
-              <UserProfileView
-                currentUser={currentUser}
-                projects={projects}
-                preferences={userPreferences}
-                onUpdatePreferences={handleUpdatePreferences}
-                onOpenEditProfile={() => openAuth('profile')}
-                onLogout={handleLogout}
-                onOpenAuthModal={openAuth}
-                initialSubSection={profileSubSection}
-              />
-            )}
+              {/* Tab 11: Master Profile, Settings, Appearance, Product Guide & About */}
+              {activeTab === 'profile' && (
+                <UserProfileView
+                  currentUser={currentUser}
+                  projects={projects}
+                  preferences={userPreferences}
+                  onUpdatePreferences={handleUpdatePreferences}
+                  onOpenEditProfile={() => openAuth('profile')}
+                  onLogout={handleLogout}
+                  onOpenAuthModal={openAuth}
+                  initialSubSection={profileSubSection}
+                />
+              )}
+            </Suspense>
           </main>
 
           {/* Persistence Feedback Toast: Saving or Error */}
@@ -359,48 +439,53 @@ export default function App() {
           </footer>
 
           {/* Auth & Profile Modal */}
-          <AuthModal
-            isOpen={isAuthModalOpen}
-            initialMode={authModalMode}
-            currentUser={currentUser}
-            onClose={() => setIsAuthModalOpen(false)}
-            onLogin={async (email, pass) => {
-              const success = await handleLogin(email, pass);
-              if (success) setIsAuthModalOpen(false);
-              return success;
-            }}
-            onRegister={async (name, email, pass, role) => {
-              const success = await handleRegister(name, email, pass, role);
-              if (success) setIsAuthModalOpen(false);
-              return success;
-            }}
-            onUpdateProfile={async (name, role, newPass) => {
-              await handleUpdateProfile(name, role, newPass);
-              setIsAuthModalOpen(false);
-            }}
-            onLogout={() => {
-              handleLogout();
-              setIsAuthModalOpen(false);
-            }}
-          />
+          <Suspense fallback={null}>
+            <AuthModal
+              isOpen={isAuthModalOpen}
+              initialMode={authModalMode}
+              currentUser={currentUser}
+              onClose={() => setIsAuthModalOpen(false)}
+              onLogin={async (email, pass) => {
+                const result = await handleLogin(email, pass);
+                return result;
+              }}
+              onRegister={async (name, email, pass, role) => {
+                const result = await handleRegister(name, email, pass, role);
+                return result;
+              }}
+              onUpdateProfile={async (name, role, newPass) => {
+                await handleUpdateProfile(name, role, newPass);
+                setIsAuthModalOpen(false);
+              }}
+              onLogout={() => {
+                handleLogout();
+                setIsAuthModalOpen(false);
+              }}
+            />
+          </Suspense>
 
           {/* New Project Modal (80+ Types, Hybrid, Tech Presets) */}
-          <NewProjectModal
-            isOpen={isNewProjectModalOpen}
-            onClose={() => setIsNewProjectModalOpen(false)}
-            onCreateProject={handleCreateProject}
-          />
+          <Suspense fallback={null}>
+            <NewProjectModal
+              isOpen={isNewProjectModalOpen}
+              onClose={() => setIsNewProjectModalOpen(false)}
+              onCreateProject={handleCreateProject}
+            />
+          </Suspense>
 
           {/* Cloud Sync & Supabase Setup Modal */}
-          <CloudSyncModal
-            isOpen={isCloudSyncModalOpen}
-            onClose={() => setIsCloudSyncModalOpen(false)}
-            onConnectionChange={() => {
-              retestConnection();
-            }}
-          />
+          <Suspense fallback={null}>
+            <CloudSyncModal
+              isOpen={isCloudSyncModalOpen}
+              onClose={() => setIsCloudSyncModalOpen(false)}
+              onConnectionChange={() => {
+                retestConnection();
+              }}
+            />
+          </Suspense>
         </div>
       </I18nProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   );
 }

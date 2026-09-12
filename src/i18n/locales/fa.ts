@@ -36,6 +36,19 @@ export const fa: TranslationKeys = {
   quality: 'کیفیت و تحویل',
   business: 'کسب‌وکار',
   tools: 'ابزارهای کمکی',
+  
+  // UI Elements
+  mainMenu: 'منوی اصلی',
+  menu: 'منو',
+  smartNavigation: 'ناوبری هوشمند',
+  selectProject: 'انتخاب پروژه',
+  yourProjects: 'پروژه‌های شما',
+  profileSection: 'بخش پروفایل',
+  default: 'پیش‌فرض',
+  
+  // Account extended
+  accountDescription: 'اطلاعات حساب کاربری و پروژه‌های شما',
+  createProjectGuidanceFull: 'برای شروع، یک پروژه جدید ایجاد کنید و سفر توسعه خود را آغاز کنید',
 
   // Auth
   login: 'ورود',
@@ -64,9 +77,6 @@ export const fa: TranslationKeys = {
   createFirstProject: 'اولین پروژه خود را ایجاد کنید',
   dataSecurity: 'امنیت داده‌ها و تفکیک اختصاصی (RLS)',
   dataSecurityDesc: 'داده‌های شما با شناسه کاربری منحصر‌به‌فرد رمزگذاری و در جداول تفکیک‌شده ذخیره می‌شوند. هیچ کاربری به اطلاعات، پروژه‌ها و مستندات شما دسترسی نخواهد داشت.',
-  accountDescription: 'مشخصات فردی و فنی دولوپر در سامانه',
-  yourProjects: 'پروژه‌های ثبت‌شده شما',
-  createProjectGuidanceFull: 'برای شروع مدیریت مراحل ساخت وب‌سایت، اولین پروژه خود را ایجاد کنید',
 
   // Settings
   settingsTitle: 'تنظیمات و اولویت‌های حساب کاربری',
@@ -112,7 +122,6 @@ export const fa: TranslationKeys = {
   primaryButton: 'دکمه اصلی CTA',
   activeBadge: 'بج فعال',
   progressBar: 'نوار پیشرفت',
-  default: 'پیش‌فرض',
 
   // Color themes
   colorDefault: 'سفید، مشکی و زرد (پیش‌فرض رسمی)',
@@ -293,7 +302,6 @@ export const fa: TranslationKeys = {
   whereAmIReadyForNextPhase: 'پروژه آماده ورود رسمی به فاز بعدی نقشه راه است.',
   whereAmIEnterNextPhase: 'ورود به فاز {phaseNumber}: {phaseTitle}',
   whereAmINextPhaseTeaser: 'به کجا می‌روی؟ (گام بعدی)',
-  whereAmINextPhase: 'فاز بعدی: {phaseNumber}',
   whereAmILifecycleEnd: 'تبریک! شما در آخرین فاز نقشه راه (پشتیبانی و نگهداری مداوم) قرار دارید.',
   whereAmINextPhaseTitle: 'فاز {phaseNumber}: {phaseTitle} ({phaseTitleEn})',
   whereAmINextPhaseDelivery: 'خروجی‌هایی که در گام بعدی باید آماده کنی:',
@@ -370,8 +378,8 @@ export const fa: TranslationKeys = {
   phaseDetailViewNoteSaved: 'ذخیره شد',
   phaseDetailViewNotePlaceholder: 'مثلاً: درگاه تست آماده شد؛ مشتری تأکید کرد رنگ اصلی لوگو فیروزه‌ای تیره باشد...',
   phaseDetailViewSaveNoteButton: 'ذکرنotes این فاز را ذخیره کن',
-  // Roadmap
-  roadmap: {
+  // Roadmap View
+  roadmapView: {
     noProject: 'هیچ پروژه‌ای برای نمایش نقشه راه ۲۵ گام موجود نیست',
     noProjectDescription: 'نقشه راه نرم‌افزار به‌صورت داینامیک بر اساس ساختاری پروژه و ماژول‌های شما محاسبه می‌شود. لطفاً ابتدا پروژه خود را تعریف کنید.',
     createFirstProject: '+ ایجاد اولین پروژه',
@@ -397,7 +405,6 @@ export const fa: TranslationKeys = {
     maintenanceCategory: 'نگهداری و قرارداد SLA (۲۴-۲۵)',
     applicablePhases: 'مراحل قابل اعمال:',
     showing: 'نمایش',
-    outOf: 'از',
     roadmapPhases: 'مراحل نقشه راه',
     allStatuses: 'همه وضعیت‌ها',
     currentPhase: 'فاز فعلی',

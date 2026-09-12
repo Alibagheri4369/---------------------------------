@@ -115,7 +115,7 @@ export function Navbar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const allNavItems = [
+  const allNavItems: { id: NavTabType; label: string; icon: any; category: string; description: string }[] = [
     { id: 'whereAmI', label: t('whereAmI'), icon: Layers, category: t('primary'), description: t('whereAmIDescription') },
     { id: 'roadmap', label: t('roadmap'), icon: Compass, category: t('primary'), description: t('roadmapDescription') },
     { id: 'checklist', label: t('checklist'), icon: CheckSquare, category: t('primary'), description: t('checklistDescription') },
@@ -193,7 +193,6 @@ export function Navbar({
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-colors cursor-pointer text-xs"
                   >
-                    >
                     <div
                       className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold text-slate-950 shrink-0"
                       style={{ backgroundColor: currentUser.avatarColor || '#f59e0b' }}
@@ -385,9 +384,9 @@ export function Navbar({
                         ))
                       )}
                     </div>
-                  )}
-                }
-              }
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Desktop Navigation Links */}

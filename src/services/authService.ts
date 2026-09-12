@@ -1,7 +1,13 @@
 import { User } from '../types';
-import { getSupabaseClient, userPartitionStorage } from './supabaseClient';
-
-const AUTH_STORAGE_KEY_SESSION_USER = 'app_current_auth_user_v3';
+import { getSupabaseClient } from './supabaseClient';
+import { 
+  checkRateLimit, 
+  recordFailedAttempt, 
+  clearRateLimit, 
+  formatRemainingTime 
+} from '../utils/rateLimiter';
+import { clearCSRFToken } from '../utils/csrfProtection';
+import { showRateLimitWarning } from '../utils/toast';
 
 export interface AuthResponse {
   success: boolean;
@@ -9,45 +15,73 @@ export interface AuthResponse {
   error?: string;
 }
 
+export const DEFAULT_GUEST_USER: User = {
+  id: 'guest_anonymous',
+  name: 'کاربر مهمان',
+  email: 'guest@local.app',
+  role: 'Full-Stack Developer',
+  avatarColor: '#06b6d4',
+  createdAt: new Date().toISOString(),
+};
+
 /**
- * Get active user from Supabase or active authenticated session
+ * Get authenticated user from Supabase Auth or fallback to DEFAULT_GUEST_USER
  */
 export async function getCurrentUser(): Promise<User | null> {
   const supabase = getSupabaseClient();
-  if (supabase) {
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session?.user) {
-        return null;
-      }
-      const su = session.user;
-      return {
-        id: su.id,
-        name: su.user_metadata?.name || su.email?.split('@')[0] || 'دولوپر',
-        email: su.email || '',
-        role: su.user_metadata?.role || 'Full-Stack Developer',
-        avatarColor: su.user_metadata?.avatarColor || '#06b6d4',
-        createdAt: su.created_at,
-      };
-    } catch (e) {
-      console.error('Error fetching Supabase session user', e);
-    }
+  if (!supabase) {
+    return DEFAULT_GUEST_USER;
   }
 
-  // Fallback to local authenticated session
   try {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY_SESSION_USER);
-    if (raw) {
-      return JSON.parse(raw);
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session?.user) {
+      return DEFAULT_GUEST_USER;
     }
-  } catch {
-    // ignore
+
+    const su = session.user;
+    
+    // Fetch user profile from database
+    try {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', su.id)
+        .single();
+
+      if (profile) {
+        return {
+          id: profile.id,
+          name: profile.display_name,
+          email: profile.email,
+          role: profile.role,
+          avatarColor: profile.avatar_color || '#06b6d4',
+          createdAt: profile.created_at,
+        };
+      }
+    } catch (profileError) {
+      console.error('Failed to fetch user profile:', profileError);
+    }
+
+    // Fallback to auth metadata if profile not found
+    return {
+      id: su.id,
+      name: su.user_metadata?.name || su.email?.split('@')[0] || 'Developer',
+      email: su.email || '',
+      role: su.user_metadata?.role || 'Full-Stack Developer',
+      avatarColor: su.user_metadata?.avatarColor || '#06b6d4',
+      createdAt: su.created_at,
+    };
+  } catch (e) {
+    console.error('Error fetching authenticated user:', e);
+    return null;
   }
-  return null;
 }
 
 /**
- * Register a new developer account
+ * PRODUCTION-GRADE: Register a new developer account via Supabase Auth
+ * Email verification will be sent automatically if enabled in Supabase
+ * WITH RATE LIMITING to prevent abuse
  */
 export async function registerUser(
   name: string,
@@ -55,154 +89,203 @@ export async function registerUser(
   password: string,
   role: string = 'Full-Stack Developer'
 ): Promise<AuthResponse> {
+  // بررسی Rate Limit
+  const rateCheck = checkRateLimit(email);
+  if (!rateCheck.allowed) {
+    const timeRemaining = rateCheck.lockedUntil 
+      ? formatRemainingTime(rateCheck.lockedUntil)
+      : '';
+    return {
+      success: false,
+      error: `تعداد تلاش‌های شما بیش از حد مجاز است. لطفاً ${timeRemaining} دیگر تلاش کنید.`
+    };
+  }
+
   const supabase = getSupabaseClient();
 
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-            role,
-            avatarColor: '#06b6d4',
-          },
-        },
-      });
+  if (!supabase) {
+    return { 
+      success: false, 
+      error: 'Supabase is not configured. Please configure Supabase connection in settings.' 
+    };
+  }
 
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      if (data.user) {
-        const user: User = {
-          id: data.user.id,
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
           name,
-          email,
           role,
           avatarColor: '#06b6d4',
-          createdAt: data.user.created_at || new Date().toISOString(),
-        };
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
 
-        // Try syncing profile to user_profiles table
-        try {
-          await supabase.from('user_profiles').upsert({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            avatar_color: user.avatarColor,
-            updated_at: new Date().toISOString(),
-          });
-        } catch {
-          // ignore if table not created yet
-        }
-
-        localStorage.setItem(AUTH_STORAGE_KEY_SESSION_USER, JSON.stringify(user));
-        return { success: true, user };
+    if (error) {
+      // ثبت تلاش ناموفق
+      recordFailedAttempt(email);
+      
+      // Translate common Supabase auth errors
+      if (error.message.includes('already registered')) {
+        return { success: false, error: 'This email is already registered.' };
       }
-    } catch (err: any) {
-      return { success: false, error: err?.message || 'خطا در ثبت‌نام با Supabase' };
+      if (error.message.includes('password')) {
+        return { success: false, error: 'Password must be at least 6 characters.' };
+      }
+      return { success: false, error: error.message };
     }
+
+    if (data.user) {
+      // پاک کردن Rate Limit در صورت موفقیت
+      clearRateLimit(email);
+      
+      const user: User = {
+        id: data.user.id,
+        name,
+        email,
+        role,
+        avatarColor: '#06b6d4',
+        createdAt: data.user.created_at || new Date().toISOString(),
+      };
+
+      // Profile will be auto-created by database trigger
+      // Return user but note that email verification may be required
+      return { 
+        success: true, 
+        user,
+        error: data.user.email_confirmed_at ? undefined : 'Please check your email to verify your account.'
+      };
+    }
+
+    return { success: false, error: 'Registration failed. Please try again.' };
+  } catch (err: any) {
+    // ثبت تلاش ناموفق
+    recordFailedAttempt(email);
+    console.error('Registration error:', err);
+    return { success: false, error: err?.message || 'Registration failed' };
   }
-
-  // Local user partition storage
-  const userRegistry: Record<string, { user: User; pass: string }> = 
-    JSON.parse(localStorage.getItem('app_user_accounts_registry') || '{}');
-
-  const normalizedEmail = email.toLowerCase().trim();
-  if (userRegistry[normalizedEmail]) {
-    return { success: false, error: 'این ایمیل قبلاً ثبت‌نام شده است.' };
-  }
-
-  const userId = `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  const newUser: User = {
-    id: userId,
-    name,
-    email: normalizedEmail,
-    role,
-    avatarColor: '#06b6d4',
-    createdAt: new Date().toISOString(),
-  };
-
-  userRegistry[normalizedEmail] = { user: newUser, pass: password };
-  localStorage.setItem('app_user_accounts_registry', JSON.stringify(userRegistry));
-  localStorage.setItem(AUTH_STORAGE_KEY_SESSION_USER, JSON.stringify(newUser));
-
-  return { success: true, user: newUser };
 }
 
 /**
- * Sign in existing user
+ * PRODUCTION-GRADE: Sign in existing user via Supabase Auth ONLY
+ * NO localStorage fallback - ONLY real authentication
+ * WITH RATE LIMITING to prevent brute force attacks
  */
-export async function loginUser(email: string, pass: string): Promise<AuthResponse> {
+export async function loginUser(email: string, password: string): Promise<AuthResponse> {
+  // بررسی Rate Limit
+  const rateCheck = checkRateLimit(email);
+  if (!rateCheck.allowed) {
+    const timeRemaining = rateCheck.lockedUntil 
+      ? formatRemainingTime(rateCheck.lockedUntil)
+      : '';
+    return {
+      success: false,
+      error: `تعداد تلاش‌های ورود بیش از حد مجاز است. حساب شما برای ${timeRemaining} مسدود شده است.`
+    };
+  }
+
   const supabase = getSupabaseClient();
 
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password: pass,
-      });
+  if (!supabase) {
+    return { 
+      success: false, 
+      error: 'Supabase is not configured. Please configure Supabase connection in settings.' 
+    };
+  }
 
-      if (error) {
-        return { success: false, error: error.message };
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      // ثبت تلاش ناموفق
+      recordFailedAttempt(email);
+      
+      // بررسی تعداد تلاش‌های باقیمانده
+      const remainingCheck = checkRateLimit(email);
+      const warningMsg = remainingCheck.remainingAttempts > 0 && remainingCheck.remainingAttempts <= 2
+        ? ` (${remainingCheck.remainingAttempts} تلاش باقی‌مانده)`
+        : '';
+      
+      // نمایش هشدار اگر تلاش‌های کمی باقی‌مانده
+      if (remainingCheck.remainingAttempts > 0 && remainingCheck.remainingAttempts <= 2) {
+        showRateLimitWarning(remainingCheck.remainingAttempts);
       }
-
-      if (data.user) {
-        const user: User = {
-          id: data.user.id,
-          name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'دولوپر',
-          email: data.user.email || email,
-          role: data.user.user_metadata?.role || 'Full-Stack Developer',
-          avatarColor: data.user.user_metadata?.avatarColor || '#06b6d4',
-          createdAt: data.user.created_at,
-        };
-
-        localStorage.setItem(AUTH_STORAGE_KEY_SESSION_USER, JSON.stringify(user));
-        return { success: true, user };
+      
+      // Translate common errors
+      if (error.message.includes('Invalid login credentials')) {
+        return { success: false, error: `ایمیل یا رمز عبور اشتباه است.${warningMsg}` };
       }
-    } catch (err: any) {
-      return { success: false, error: err?.message || 'خطا در ورود' };
+      if (error.message.includes('Email not confirmed')) {
+        return { success: false, error: 'Please verify your email before logging in.' };
+      }
+      return { success: false, error: error.message + warningMsg };
     }
+
+    if (data.user) {
+      // پاک کردن Rate Limit در صورت موفقیت
+      clearRateLimit(email);
+      
+      // Fetch user profile
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
+
+      const user: User = {
+        id: data.user.id,
+        name: profile?.display_name || data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'Developer',
+        email: data.user.email || email,
+        role: profile?.role || data.user.user_metadata?.role || 'Full-Stack Developer',
+        avatarColor: profile?.avatar_color || data.user.user_metadata?.avatarColor || '#06b6d4',
+        createdAt: profile?.created_at || data.user.created_at,
+      };
+
+      // Update last login
+      await supabase
+        .from('user_profiles')
+        .update({ last_login_at: new Date().toISOString() })
+        .eq('id', data.user.id);
+
+      return { success: true, user };
+    }
+
+    return { success: false, error: 'Login failed. Please try again.' };
+  } catch (err: any) {
+    // ثبت تلاش ناموفق
+    recordFailedAttempt(email);
+    console.error('Login error:', err);
+    return { success: false, error: err?.message || 'Login failed' };
   }
-
-  // Local user partition verification
-  const normalizedEmail = email.toLowerCase().trim();
-  const userRegistry: Record<string, { user: User; pass: string }> = 
-    JSON.parse(localStorage.getItem('app_user_accounts_registry') || '{}');
-
-  const account = userRegistry[normalizedEmail];
-  if (!account) {
-    return { success: false, error: 'حسابی با این مشخصات یافت نشد. لطفاً ابتدا ثبت‌نام کنید.' };
-  }
-
-  if (account.pass !== pass) {
-    return { success: false, error: 'رمز عبور وارد شده نادرست است.' };
-  }
-
-  localStorage.setItem(AUTH_STORAGE_KEY_SESSION_USER, JSON.stringify(account.user));
-  return { success: true, user: account.user };
 }
 
 /**
- * Sign out and clear active session
+ * PRODUCTION-GRADE: Sign out user (clear Supabase session ONLY)
  */
 export async function logoutUser(): Promise<void> {
   const supabase = getSupabaseClient();
-  if (supabase) {
-    try {
-      await supabase.auth.signOut();
-    } catch (e) {
-      console.error('Error signing out from Supabase', e);
-    }
+  if (!supabase) {
+    console.warn('Supabase not configured. Cannot sign out.');
+    return;
   }
-  localStorage.removeItem(AUTH_STORAGE_KEY_SESSION_USER);
+
+  try {
+    await supabase.auth.signOut();
+    // پاک کردن CSRF token
+    clearCSRFToken();
+  } catch (e) {
+    console.error('Error signing out:', e);
+  }
 }
 
 /**
- * Update current user profile
+ * PRODUCTION-GRADE: Update user profile in Supabase
  */
 export async function updateUserProfile(
   userId: string,
@@ -212,44 +295,176 @@ export async function updateUserProfile(
 ): Promise<User | null> {
   const supabase = getSupabaseClient();
 
-  if (supabase) {
-    try {
-      const updates: any = { data: { name, role } };
-      if (newPassword) updates.password = newPassword;
-
-      const { data, error } = await supabase.auth.updateUser(updates);
-      if (!error && data.user) {
-        const updated: User = {
-          id: data.user.id,
-          name,
-          email: data.user.email || '',
-          role,
-          avatarColor: data.user.user_metadata?.avatarColor || '#06b6d4',
-          createdAt: data.user.created_at,
-        };
-        localStorage.setItem(AUTH_STORAGE_KEY_SESSION_USER, JSON.stringify(updated));
-        return updated;
-      }
-    } catch (e) {
-      console.error(e);
-    }
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return null;
   }
 
-  // Local fallback
-  const raw = localStorage.getItem(AUTH_STORAGE_KEY_SESSION_USER);
-  if (raw) {
-    const u: User = JSON.parse(raw);
-    const updated: User = { ...u, name, role };
-    localStorage.setItem(AUTH_STORAGE_KEY_SESSION_USER, JSON.stringify(updated));
-
-    // Update in registry
-    const reg = JSON.parse(localStorage.getItem('app_user_accounts_registry') || '{}');
-    if (reg[u.email.toLowerCase()]) {
-      reg[u.email.toLowerCase()].user = updated;
-      if (newPassword) reg[u.email.toLowerCase()].pass = newPassword;
-      localStorage.setItem('app_user_accounts_registry', JSON.stringify(reg));
+  try {
+    // Update auth metadata
+    const updates: any = { data: { name, role } };
+    if (newPassword) {
+      updates.password = newPassword;
     }
-    return updated;
+
+    const { data, error } = await supabase.auth.updateUser(updates);
+    if (error) {
+      console.error('Failed to update auth user:', error);
+      return null;
+    }
+
+    // Update profile in database
+    const { error: profileError } = await supabase
+      .from('user_profiles')
+      .update({
+        display_name: name,
+        role: role,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId);
+
+    if (profileError) {
+      console.error('Failed to update user profile:', profileError);
+    }
+
+    if (data.user) {
+      return {
+        id: data.user.id,
+        name,
+        email: data.user.email || '',
+        role,
+        avatarColor: data.user.user_metadata?.avatarColor || '#06b6d4',
+        createdAt: data.user.created_at,
+      };
+    }
+
+    return null;
+  } catch (e) {
+    console.error('Error updating user profile:', e);
+    return null;
   }
-  return null;
+}
+
+/**
+ * PRODUCTION-GRADE: Send password reset email via Supabase
+ */
+export async function sendPasswordResetEmail(email: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = getSupabaseClient();
+
+  if (!supabase) {
+    return { 
+      success: false, 
+      error: 'Supabase is not configured.' 
+    };
+  }
+
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Password reset error:', err);
+    return { success: false, error: err?.message || 'Failed to send password reset email' };
+  }
+}
+
+/**
+ * PRODUCTION-GRADE: Resend email verification
+ */
+export async function resendVerificationEmail(): Promise<{ success: boolean; error?: string }> {
+  const supabase = getSupabaseClient();
+
+  if (!supabase) {
+    return { 
+      success: false, 
+      error: 'Supabase is not configured.' 
+    };
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, error: 'No user session found' };
+    }
+
+    if (user.email_confirmed_at) {
+      return { success: false, error: 'Email already verified' };
+    }
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: user.email!,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Resend verification error:', err);
+    return { success: false, error: err?.message || 'Failed to resend verification email' };
+  }
+}
+
+/**
+ * PRODUCTION-GRADE: Sign in with Google OAuth via Supabase
+ */
+export async function loginWithGoogle(): Promise<{ success: boolean; error?: string }> {
+  const supabase = getSupabaseClient();
+
+  if (!supabase) {
+    return { 
+      success: false, 
+      error: 'Supabase is not configured.' 
+    };
+  }
+
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // OAuth will redirect, so this won't return normally
+    return { success: true };
+  } catch (err: any) {
+    console.error('Google login error:', err);
+    return { success: false, error: err?.message || 'Failed to sign in with Google' };
+  }
+}
+
+/**
+ * Check if current user's email is verified
+ */
+export async function isEmailVerified(): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return false;
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.email_confirmed_at != null;
+  } catch {
+    return false;
+  }
 }

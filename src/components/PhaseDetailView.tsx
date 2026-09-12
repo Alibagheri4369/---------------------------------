@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { 
   CheckCircle2, 
   Circle, 
@@ -85,6 +85,12 @@ export function PhaseDetailView({
   const [noteText, setNoteText] = useState(currentProject.phaseNotes[phase.id] || '');
   const [isNoteSaved, setIsNoteSaved] = useState(false);
   const [copiedReport, setCopiedReport] = useState(false);
+
+  // Sync noteText when phase or project changes
+  useEffect(() => {
+    setNoteText(currentProject.phaseNotes[phase.id] || '');
+    setIsNoteSaved(false);
+  }, [phase.id, currentProject.id]);
 
   const customTasksList = currentProject.customTasks[phase.id] || [];
 

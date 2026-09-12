@@ -1,0 +1,39 @@
+# Security Headers for Netlify Deployment
+# https://docs.netlify.com/routing/headers/
+
+/*
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+  
+  # Prevent clickjacking attacks
+  X-Frame-Options: DENY
+  
+  # Enable XSS protection (legacy browsers)
+  X-XSS-Protection: 1; mode=block
+  
+  # Control referrer information
+  Referrer-Policy: strict-origin-when-cross-origin
+  
+  # Restrict browser features
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  
+  # Force HTTPS (only in production)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  
+  # Content Security Policy
+  # Allows scripts from self, inline scripts (React), and Google AI
+  # Allows styles from self and inline styles (Tailwind)
+  # Allows images from self, data URIs, and HTTPS sources
+  # Allows connections to Supabase and Google AI
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://ai.google.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://ai.google.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  
+  # Cache control for static assets
+  Cache-Control: public, max-age=31536000, immutable
+
+# Different cache control for HTML files
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Service worker should not be cached
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate

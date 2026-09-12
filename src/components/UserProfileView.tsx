@@ -1,4 +1,4 @@
-import { useState, useTransition } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { 
   User as UserIcon, 
   Settings, 
@@ -99,7 +99,7 @@ export function UserProfileView({
     const ok = await onUpdatePreferences({
       themeMode,
       colorTheme,
-      draftLanguage,
+      language: draftLanguage,
       timezone,
       dateFormat,
       density,
@@ -992,7 +992,6 @@ export function UserProfileView({
 
                   <a
                     href="https://instagram.com"
-                    target="_blank"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-4 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:opacity-95 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"

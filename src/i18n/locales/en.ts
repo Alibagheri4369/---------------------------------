@@ -36,6 +36,19 @@ export const en: TranslationKeys = {
   quality: 'Quality & Delivery',
   business: 'Business',
   tools: 'Tools',
+  
+  // UI Elements
+  mainMenu: 'Main Menu',
+  menu: 'Menu',
+  smartNavigation: 'Smart Navigation',
+  selectProject: 'Select Project',
+  yourProjects: 'Your Projects',
+  profileSection: 'Profile Section',
+  default: 'Default',
+  
+  // Account extended
+  accountDescription: 'Your account information and projects',
+  createProjectGuidanceFull: 'To get started, create a new project and begin your development journey',
 
   // Auth
   login: 'Login',
@@ -64,9 +77,6 @@ export const en: TranslationKeys = {
   createFirstProject: 'Create your first project',
   dataSecurity: 'Data Security & Dedicated Isolation (RLS)',
   dataSecurityDesc: 'Your data is encrypted with a unique User ID and stored in isolated tables. No other user can access your information, projects, or documents.',
-  accountDescription: 'Personal and technical information of the developer in the system',
-  yourProjects: 'Your registered projects',
-  createProjectGuidanceFull: 'To start managing website development stages, create your first project',
 
   // Settings
   settingsTitle: 'Account Settings & Preferences',
@@ -346,7 +356,6 @@ export const en: TranslationKeys = {
   whereAmIReadyForNextPhase: 'Project is ready for official entry into the next phase of the roadmap.',
   whereAmIEnterNextPhase: 'Enter Phase {phaseNumber}: {phaseTitle}',
   whereAmINextPhaseTeaser: 'Where are you heading next? (Next Step)',
-  whereAmINextPhase: 'Next Phase: {phaseNumber}',
   whereAmILifecycleEnd: 'Congratulations! You are in the final phase of the lifecycle (ongoing support and maintenance).',
   whereAmINextPhaseTitle: 'Phase {phaseNumber}: {phaseTitle} ({phaseTitleEn})',
   whereAmINextPhaseDelivery: 'Deliverables to prepare for the next step:',
@@ -433,8 +442,8 @@ templatesViewScopeOfWork: 'Scope of work and boundaries (SCOPE_OF_WORK.md)',
 templatesViewArchitecture: 'System architecture specification (ARCHITECTURE.md)',
 templatesViewSlaMaintenance: 'SLA maintenance and support contract (SLA_MAINTENANCE.md)',
 
-  // Roadmap
-  roadmap: {
+  // Roadmap View
+  roadmapView: {
     noProject: 'No project available to display the 25-phase roadmap',
     noProjectDescription: 'Software roadmap is dynamically calculated based on your project structure and modules. Please first define your project.',
     createFirstProject: '+ Create First Project',
@@ -460,7 +469,6 @@ templatesViewSlaMaintenance: 'SLA maintenance and support contract (SLA_MAINTENA
     maintenanceCategory: 'Maintenance & SLA Contracting (24-25)',
     applicablePhases: 'Applicable Phases:',
     showing: 'Showing',
-    outOf: 'out of',
     roadmapPhases: 'roadmap phases',
     allStatus: 'All Statuses',
     currentPhase: 'Current Phase',

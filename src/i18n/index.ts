@@ -25,8 +25,14 @@ export function getLanguage(): AppLanguage {
   return currentLanguage;
 }
 
-export function t<K extends keyof TranslationKeys>(key: K): TranslationKeys[K] {
-  return locales[currentLanguage][key];
+export function t<K extends keyof TranslationKeys>(key: K): TranslationKeys[K];
+export function t(key: string): string;
+export function t(key: any): any {
+  // Handle nested paths like 'roadmapView.noProject'
+  if (typeof key === 'string' && key.includes('.')) {
+    return tNested(key);
+  }
+  return locales[currentLanguage][key as keyof TranslationKeys];
 }
 
 export function getLocaleMessages(lang: AppLanguage): TranslationKeys {

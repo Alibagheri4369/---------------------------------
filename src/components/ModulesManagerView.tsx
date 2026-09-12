@@ -20,7 +20,7 @@ import {
   Zap,
   Globe
 } from 'lucide-react';
-import { Project, ModuleCategory } from '../types';
+import { Project, ModuleCategoryType } from '../types';
 import { UNIVERSAL_MODULES } from '../data/modulesData';
 import { UNIVERSAL_PROJECT_TYPES } from '../data/universalProjectTypes';
 
@@ -38,7 +38,7 @@ export function ModulesManagerView({
   onOpenNewProjectModal,
 }: ModulesManagerViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<ModuleCategory | 'all'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<ModuleCategoryType | 'all'>('all');
   const [customModuleName, setCustomModuleName] = useState('');
 
   if (!currentProject) {
@@ -79,7 +79,7 @@ export function ModulesManagerView({
     }
   });
 
-  const categories: { id: ModuleCategory | 'all'; title: string; icon: any }[] = [
+  const categories: { id: ModuleCategoryType | 'all'; title: string; icon: any }[] = [
     { id: 'all', title: 'همه ماژول‌ها', icon: Puzzle },
     { id: 'core', title: 'معماری و هسته', icon: Server },
     { id: 'auth', title: 'احراز هویت و دسترسی', icon: Lock },
