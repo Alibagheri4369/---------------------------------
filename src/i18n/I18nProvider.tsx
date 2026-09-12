@@ -87,7 +87,9 @@ export function I18nProvider({
       language,
       direction,
       t,
-    }), [language, direction, setLanguage, userId]);
+      setLanguage,
+      availableLanguages,
+    }), [language, direction, setLanguage]);
 
   // Don't render children until mounted to prevent hydration mismatch
   if (!mounted) {
