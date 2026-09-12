@@ -35,7 +35,7 @@ interface PhaseDetailViewProps {
   onOpenNewProjectModal?: () => void;
 }
 
-export function PhaseDetailView({
+export default function PhaseDetailView({
   phaseId,
   currentProject,
   onToggleTask,

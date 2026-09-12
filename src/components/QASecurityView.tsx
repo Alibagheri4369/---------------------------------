@@ -24,7 +24,7 @@ interface QASecurityViewProps {
   onOpenNewProjectModal?: () => void;
 }
 
-export function QASecurityView({ 
+export default function QASecurityView({ 
   currentProject, 
   onToggleTask,
   onOpenNewProjectModal 

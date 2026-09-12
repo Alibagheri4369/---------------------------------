@@ -47,7 +47,7 @@ interface PricingViewProps {
   currentProject: Project | null;
 }
 
-export function PricingView({ currentProject }: PricingViewProps) {
+export default function PricingView({ currentProject }: PricingViewProps) {
   const { user: currentUser } = useAuth();
   const effectiveUserId = currentUser ? currentUser.id : 'guest_anonymous';
 

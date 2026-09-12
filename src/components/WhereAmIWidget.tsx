@@ -40,7 +40,7 @@ interface WhereAmIWidgetProps {
   onSelectProject?: (projectId: string) => void;
 }
 
-export function WhereAmIWidget({
+export default function WhereAmIWidget({
   currentProject,
   allProjects = [],
   onSelectPhase,

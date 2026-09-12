@@ -20,7 +20,7 @@ interface AuthModalProps {
   onLogout: () => void;
 }
 
-export function AuthModal({
+export default function AuthModal({
   isOpen,
   initialMode,
   currentUser,

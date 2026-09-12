@@ -27,7 +27,7 @@ interface AccountOwnershipViewProps {
   onOpenNewProjectModal?: () => void;
 }
 
-export function AccountOwnershipView({
+export default function AccountOwnershipView({
   currentProject,
   onUpdateServices,
   onUpdateOwnerships,

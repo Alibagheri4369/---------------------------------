@@ -25,7 +25,7 @@ interface VisualRoadmapProps {
   onOpenNewProjectModal?: () => void;
 }
 
-export function VisualRoadmap({
+export default function VisualRoadmap({
   currentProject,
   onSelectPhase,
   onSetCurrentPhase,

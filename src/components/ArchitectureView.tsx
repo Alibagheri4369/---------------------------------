@@ -28,7 +28,7 @@ interface ArchitectureViewProps {
   onOpenNewProjectModal?: () => void;
 }
 
-export function ArchitectureView({
+export default function ArchitectureView({
   currentProject,
   onUpdateTechStack,
   onUpdateRoles,

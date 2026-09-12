@@ -31,7 +31,7 @@ interface ModulesManagerViewProps {
   onOpenNewProjectModal?: () => void;
 }
 
-export function ModulesManagerView({
+export default function ModulesManagerView({
   currentProject,
   onToggleModule,
   onSetModules,

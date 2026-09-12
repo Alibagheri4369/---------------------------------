@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FileText, Copy, Check, Download, FolderGit2, Sparkles, Code2, ShieldAlert, FileSignature } from 'lucide-react';
 import { MASTER_CHECKLIST_TEMPLATE } from '../data/roadmapData';
 
-export function TemplatesView() {
+export default function TemplatesView() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const handleCopy = (text: string, key: string) => {

@@ -31,7 +31,7 @@ interface CloudSyncModalProps {
   onConnectionChange?: () => void;
 }
 
-export function CloudSyncModal({
+export default function CloudSyncModal({
   isOpen,
   onClose,
   currentUser,

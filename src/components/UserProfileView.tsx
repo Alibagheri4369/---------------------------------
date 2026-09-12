@@ -48,7 +48,7 @@ interface UserProfileViewProps {
   initialSubSection?: ProfileSubSection;
 }
 
-export function UserProfileView({
+export default function UserProfileView({
   currentUser,
   projects,
   preferences,

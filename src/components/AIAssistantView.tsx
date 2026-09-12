@@ -22,7 +22,7 @@ interface AIAssistantViewProps {
   onOpenNewProjectModal?: () => void;
 }
 
-export function AIAssistantView({ 
+export default function AIAssistantView({ 
   currentProject, 
   onNavigateToPhase,
   onOpenNewProjectModal 

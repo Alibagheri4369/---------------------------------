@@ -4,20 +4,20 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Loader2 } from 'lucide-react';
 
 // Lazy load heavy components for better performance
-const VisualRoadmap = lazy(() => import('./components/VisualRoadmap').then(m => ({ default: m.VisualRoadmap })));
-const PhaseDetailView = lazy(() => import('./components/PhaseDetailView').then(m => ({ default: m.PhaseDetailView })));
-const WhereAmIWidget = lazy(() => import('./components/WhereAmIWidget').then(m => ({ default: m.WhereAmIWidget })));
-const ArchitectureView = lazy(() => import('./components/ArchitectureView').then(m => ({ default: m.ArchitectureView })));
-const ModulesManagerView = lazy(() => import('./components/ModulesManagerView').then(m => ({ default: m.ModulesManagerView })));
-const QASecurityView = lazy(() => import('./components/QASecurityView').then(m => ({ default: m.QASecurityView })));
-const AIAssistantView = lazy(() => import('./components/AIAssistantView').then(m => ({ default: m.AIAssistantView })));
-const AccountOwnershipView = lazy(() => import('./components/AccountOwnershipView').then(m => ({ default: m.AccountOwnershipView })));
-const PricingView = lazy(() => import('./components/PricingView').then(m => ({ default: m.PricingView })));
-const TemplatesView = lazy(() => import('./components/TemplatesView').then(m => ({ default: m.TemplatesView })));
-const UserProfileView = lazy(() => import('./components/UserProfileView').then(m => ({ default: m.UserProfileView })));
-const AuthModal = lazy(() => import('./components/AuthModal').then(m => ({ default: m.AuthModal })));
-const NewProjectModal = lazy(() => import('./components/NewProjectModal').then(m => ({ default: m.NewProjectModal })));
-const CloudSyncModal = lazy(() => import('./components/CloudSyncModal').then(m => ({ default: m.CloudSyncModal })));
+const VisualRoadmap = lazy(() => import('./components/VisualRoadmap'));
+const PhaseDetailView = lazy(() => import('./components/PhaseDetailView'));
+const WhereAmIWidget = lazy(() => import('./components/WhereAmIWidget'));
+const ArchitectureView = lazy(() => import('./components/ArchitectureView'));
+const ModulesManagerView = lazy(() => import('./components/ModulesManagerView'));
+const QASecurityView = lazy(() => import('./components/QASecurityView'));
+const AIAssistantView = lazy(() => import('./components/AIAssistantView'));
+const AccountOwnershipView = lazy(() => import('./components/AccountOwnershipView'));
+const PricingView = lazy(() => import('./components/PricingView'));
+const TemplatesView = lazy(() => import('./components/TemplatesView'));
+const UserProfileView = lazy(() => import('./components/UserProfileView'));
+const AuthModal = lazy(() => import('./components/AuthModal'));
+const NewProjectModal = lazy(() => import('./components/NewProjectModal'));
+const CloudSyncModal = lazy(() => import('./components/CloudSyncModal'));
 
 // Import ProfileSubSection type
 import type { ProfileSubSection } from './components/UserProfileView';

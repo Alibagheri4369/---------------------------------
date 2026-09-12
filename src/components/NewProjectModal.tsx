@@ -41,7 +41,7 @@ interface NewProjectModalProps {
   ) => void;
 }
 
-export function NewProjectModal({
+export default function NewProjectModal({
   isOpen,
   onClose,
   onCreateProject,
