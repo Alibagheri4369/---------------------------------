@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#0F172A"/>
+  
+  <!-- E Letter - Large -->
+  <path d="M80 130 H230 M80 130 V382 M80 256 H215 M80 382 H230" 
+        stroke="#F59E0B" 
+        stroke-width="35" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- D Letter - Large -->
+  <path d="M260 130 H360 C430 130 470 200 470 256 C470 312 430 382 360 382 H260 V130 Z" 
+        stroke="#F59E0B" 
+        stroke-width="35" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- X as decorative elements -->
+  <circle cx="475" cy="170" r="24" fill="#F59E0B"/>
+  <circle cx="475" cy="342" r="18" fill="#F59E0B" opacity="0.7"/>
+  <circle cx="256" cy="440" r="14" fill="#F59E0B" opacity="0.5"/>
+  <circle cx="120" cy="450" r="10" fill="#F59E0B" opacity="0.3"/>
+</svg>

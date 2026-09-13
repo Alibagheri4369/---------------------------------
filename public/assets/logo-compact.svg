@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="80" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="80" fill="#0F172A" rx="8"/>
+  
+  <!-- E Letter -->
+  <path d="M20 20 H50 M20 20 V60 M20 40 H47 M20 60 H50" 
+        stroke="#F59E0B" 
+        stroke-width="7" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- D Letter -->
+  <path d="M60 20 H80 C95 20 102 30 102 40 C102 50 95 60 80 60 H60 V20 Z" 
+        stroke="#F59E0B" 
+        stroke-width="7" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- X Letter -->
+  <path d="M115 20 L135 60 M135 20 L115 60" 
+        stroke="#F59E0B" 
+        stroke-width="7" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+  
+  <!-- CRM Text -->
+  <text x="145" y="45" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#F8FAFC">
+    CRM
+  </text>
+</svg>

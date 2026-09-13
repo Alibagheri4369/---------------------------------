@@ -299,9 +299,12 @@ export function Navbar({
                 onClick={() => handleSelectTab('whereAmI')}
                 className="flex items-center gap-2.5 cursor-pointer select-none"
               >
-                <div className="w-9 h-9 rounded-xl bg-amber-400 flex items-center justify-center text-slate-950 font-black shadow-md shadow-amber-400/25 shrink-0">
-                  <Compass className="w-5 h-5" />
-                </div>
+                {/* EDX Logo */}
+                <img 
+                  src="/assets/logo-icon.svg" 
+                  alt="EDX CRM Logo" 
+                  className="w-9 h-9 shrink-0"
+                />
                 <div>
                   <div className="text-sm font-black tracking-tight text-white flex items-center gap-1.5">
                     <span>{t('appName')}</span>

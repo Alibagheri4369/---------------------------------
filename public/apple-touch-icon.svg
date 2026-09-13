@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="180" height="180" fill="#0F172A" rx="40"/>
+  
+  <!-- E Letter -->
+  <path d="M35 50 H80 M35 50 V130 M35 90 H75 M35 130 H80" 
+        stroke="#F59E0B" 
+        stroke-width="12" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- D Letter -->
+  <path d="M90 50 H120 C145 50 155 70 155 90 C155 110 145 130 120 130 H90 V50 Z" 
+        stroke="#F59E0B" 
+        stroke-width="12" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- X accent -->
+  <circle cx="160" cy="60" r="8" fill="#F59E0B"/>
+  <circle cx="160" cy="120" r="6" fill="#F59E0B" opacity="0.6"/>
+</svg>

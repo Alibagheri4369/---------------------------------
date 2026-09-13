@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient effect -->
+  <rect width="1200" height="630" fill="#0F172A"/>
+  <rect x="0" y="0" width="1200" height="8" fill="#F59E0B"/>
+  <rect x="0" y="622" width="1200" height="8" fill="#F59E0B"/>
+  
+  <!-- Large EDX Letters - Centered -->
+  <g transform="translate(300, 180)">
+    <!-- E Letter -->
+    <path d="M0 0 H120 M0 0 V240 M0 120 H110 M0 240 H120" 
+          stroke="#F59E0B" 
+          stroke-width="24" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"
+          fill="none"/>
+    
+    <!-- D Letter -->
+    <path d="M160 0 H240 C300 0 340 60 340 120 C340 180 300 240 240 240 H160 V0 Z" 
+          stroke="#F59E0B" 
+          stroke-width="24" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"
+          fill="none"/>
+    
+    <!-- X Letter -->
+    <path d="M390 0 L510 240 M510 0 L390 240" 
+          stroke="#F59E0B" 
+          stroke-width="24" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Title -->
+  <text x="600" y="500" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#F8FAFC" text-anchor="middle">
+    EDX CRM - Web Developer Project Manager
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="560" font-family="Arial, sans-serif" font-size="28" fill="#94A3B8" text-anchor="middle">
+    مدیریت پروژه‌های وب با هوش مصنوعی
+  </text>
+  
+  <!-- Decorative elements -->
+  <circle cx="150" cy="315" r="8" fill="#F59E0B" opacity="0.8"/>
+  <circle cx="1050" cy="315" r="8" fill="#F59E0B" opacity="0.8"/>
+</svg>

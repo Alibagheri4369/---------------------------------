@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="120" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="120" fill="#0F172A" rx="12"/>
+  
+  <!-- Decorative accent line -->
+  <rect x="0" y="0" width="400" height="4" fill="#F59E0B"/>
+  
+  <!-- E Letter - Bold and Modern -->
+  <g id="letter-e">
+    <path d="M30 30 H70 M30 30 V90 M30 60 H65 M30 90 H70" 
+          stroke="#F59E0B" 
+          stroke-width="10" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"
+          fill="none"/>
+  </g>
+  
+  <!-- D Letter - Curved and Professional -->
+  <g id="letter-d">
+    <path d="M85 30 H115 C135 30 145 45 145 60 C145 75 135 90 115 90 H85 V30 Z" 
+          stroke="#F59E0B" 
+          stroke-width="10" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"
+          fill="none"/>
+  </g>
+  
+  <!-- X Letter - Dynamic Cross -->
+  <g id="letter-x">
+    <path d="M165 30 L195 90 M195 30 L165 90" 
+          stroke="#F59E0B" 
+          stroke-width="10" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Subtitle Text -->
+  <text x="220" y="50" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#F8FAFC">
+    EDX CRM
+  </text>
+  <text x="220" y="75" font-family="Arial, sans-serif" font-size="14" fill="#94A3B8">
+    Web Developer Project Manager
+  </text>
+  
+  <!-- Decorative dots -->
+  <circle cx="210" cy="60" r="3" fill="#F59E0B"/>
+  <circle cx="210" cy="70" r="2" fill="#F59E0B" opacity="0.6"/>
+</svg>
