@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ساخت تصویر پیش‌نمایش برای تلگرام</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #F59E0B;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94A3B8;
+            margin-bottom: 30px;
+        }
+        #preview-canvas {
+            border: 3px solid #F59E0B;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 1200px;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3);
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        button {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: #0F172A;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .info-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .info-box h3 {
+            color: #F59E0B;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .step {
+            background: rgba(30, 41, 59, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #F59E0B;
+        }
+        .step strong {
+            color: #F59E0B;
+        }
+        code {
+            background: #1e293b;
+            padding: 3px 8px;
+            border-radius: 5px;
+            color: #F59E0B;
+            font-family: 'Courier New', monospace;
+        }
+        .success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .warning {
+            background: rgba(245, 158, 11, 0.2);
+            border: 2px solid #F59E0B;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 ساخت تصویر پیش‌نمایش تلگرام</h1>
+        <p class="subtitle">این ابزار تصویر PNG با کیفیت بالا برای پیش‌نمایش لینک در تلگرام می‌سازد</p>
+        
+        <canvas id="preview-canvas" width="1200" height="630"></canvas>
+        
+        <div class="controls">
+            <button onclick="downloadPNG()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                📥 دانلود PNG (استاندارد 1200×630)
+            </button>
+            <button onclick="downloadHighRes()" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                🎯 دانلود HD (2400×1260)
+            </button>
+            <button onclick="regenerate()">
+                🔄 ساخت مجدد
+            </button>
+        </div>
+        
+        <div class="success" id="success-message">
+            ✅ تصویر با موفقیت دانلود شد!
+        </div>
+        
+        <div class="info-box">
+            <h3>📋 مراحل انجام کار</h3>
+            
+            <div class="step">
+                <strong>گام 1:</strong> روی دکمه "دانلود PNG" کلیک کنید
+            </div>
+            
+            <div class="step">
+                <strong>گام 2:</strong> فایل <code>og-image.png</code> ذخیره می‌شود
+            </div>
+            
+            <div class="step">
+                <strong>گام 3:</strong> فایل را در پوشه <code>public/</code> پروژه کپی کنید
+            </div>
+            
+            <div class="step">
+                <strong>گام 4:</strong> در فایل <code>index.html</code> این خط را پیدا کنید:
+                <br>
+                <code style="display: block; margin-top: 8px; padding: 8px;">
+                    &lt;meta property="og:image" content="...social-card.svg" /&gt;
+                </code>
+            </div>
+            
+            <div class="step">
+                <strong>گام 5:</strong> آن را به این تغییر دهید:
+                <br>
+                <code style="display: block; margin-top: 8px; padding: 8px;">
+                    &lt;meta property="og:image" content="https://[your-site]/og-image.png" /&gt;
+                </code>
+            </div>
+            
+            <div class="step">
+                <strong>گام 6:</strong> همین کار را برای <code>twitter:image</code> هم انجام دهید
+            </div>
+            
+            <div class="step">
+                <strong>گام 7:</strong> Commit و Push کنید:
+                <br>
+                <code style="display: block; margin-top: 8px; padding: 8px;">
+                    git add public/og-image.png index.html<br>
+                    git commit -m "feat: Add Open Graph image"<br>
+                    git push origin main
+                </code>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ نکته مهم:</strong> حتماً URL کامل سایت خود را در meta tag بنویسید (با https://)
+            <br>مثال: <code>https://alibexarwebtasker.vercel.app/og-image.png</code>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('preview-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function drawOGImage() {
+            // Clear canvas
+            ctx.clearRect(0, 0, 1200, 630);
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
+            gradient.addColorStop(0, '#0F172A');
+            gradient.addColorStop(1, '#1e293b');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1200, 630);
+            
+            // Top accent bar
+            ctx.fillStyle = '#F59E0B';
+            ctx.fillRect(0, 0, 1200, 10);
+            
+            // Bottom accent bar
+            ctx.fillRect(0, 620, 1200, 10);
+            
+            // EDX Letters - Bold and Clear
+            ctx.strokeStyle = '#F59E0B';
+            ctx.lineWidth = 28;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = 'rgba(245, 158, 11, 0.5)';
+            ctx.shadowBlur = 20;
+            
+            // E Letter
+            ctx.beginPath();
+            ctx.moveTo(280, 170);
+            ctx.lineTo(420, 170);
+            ctx.moveTo(280, 170);
+            ctx.lineTo(280, 430);
+            ctx.moveTo(280, 300);
+            ctx.lineTo(410, 300);
+            ctx.moveTo(280, 430);
+            ctx.lineTo(420, 430);
+            ctx.stroke();
+            
+            // D Letter
+            ctx.beginPath();
+            ctx.moveTo(460, 170);
+            ctx.lineTo(540, 170);
+            ctx.bezierCurveTo(660, 170, 700, 250, 700, 300);
+            ctx.bezierCurveTo(700, 350, 660, 430, 540, 430);
+            ctx.lineTo(460, 430);
+            ctx.lineTo(460, 170);
+            ctx.stroke();
+            
+            // X Letter
+            ctx.beginPath();
+            ctx.moveTo(750, 170);
+            ctx.lineTo(890, 430);
+            ctx.moveTo(890, 170);
+            ctx.lineTo(750, 430);
+            ctx.stroke();
+            
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            
+            // Title - Main
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 56px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('EDX CRM', 600, 510);
+            
+            // Subtitle - English
+            ctx.fillStyle = '#F59E0B';
+            ctx.font = '32px Arial, sans-serif';
+            ctx.fillText('Web Developer Project Manager', 600, 560);
+            
+            // Decorative elements
+            ctx.fillStyle = '#F59E0B';
+            ctx.globalAlpha = 0.9;
+            
+            // Left dot
+            ctx.beginPath();
+            ctx.arc(120, 315, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Right dot
+            ctx.beginPath();
+            ctx.arc(1080, 315, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Small decorative circles
+            ctx.globalAlpha = 0.4;
+            ctx.beginPath();
+            ctx.arc(180, 280, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(1020, 350, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.globalAlpha = 1.0;
+        }
+        
+        function downloadPNG() {
+            const link = document.createElement('a');
+            link.download = 'og-image.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+            
+            showSuccess();
+        }
+        
+        function downloadHighRes() {
+            // Create high-res canvas
+            const hiResCanvas = document.createElement('canvas');
+            hiResCanvas.width = 2400;
+            hiResCanvas.height = 1260;
+            const hiResCtx = hiResCanvas.getContext('2d');
+            
+            // Scale and draw
+            hiResCtx.scale(2, 2);
+            hiResCtx.drawImage(canvas, 0, 0);
+            
+            const link = document.createElement('a');
+            link.download = 'og-image-hd.png';
+            link.href = hiResCanvas.toDataURL('image/png', 1.0);
+            link.click();
+            
+            showSuccess();
+        }
+        
+        function regenerate() {
+            drawOGImage();
+        }
+        
+        function showSuccess() {
+            const msg = document.getElementById('success-message');
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Initial draw
+        drawOGImage();
+    </script>
+</body>
+</html>
