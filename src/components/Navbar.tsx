@@ -144,11 +144,11 @@ export function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-slate-100">
+      <header className="sticky top-0 z-30 backdrop-blur-md border-b transition-colors" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--foreground)' }}>
         {/* =========================================================================
             1. DESKTOP TOP RIBBON (Jalali Date, Asia/Tehran Live Clock, Database & Auth)
             ========================================================================= */}
-        <div className="hidden lg:block border-b border-slate-800/80 bg-slate-950/90 px-4 py-1.5 text-xs text-slate-300">
+        <div className="hidden lg:block border-b px-4 py-1.5 text-xs transition-colors" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--muted-foreground)' }}>
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
             {/* Tehran Timezone & Jalali Date */}
             <div className="flex items-center gap-3">

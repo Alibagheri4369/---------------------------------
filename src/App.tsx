@@ -18,6 +18,7 @@ const UserProfileView = lazy(() => import('./components/UserProfileView'));
 const AuthModal = lazy(() => import('./components/AuthModal'));
 const NewProjectModal = lazy(() => import('./components/NewProjectModal'));
 const CloudSyncModal = lazy(() => import('./components/CloudSyncModal'));
+const ThemeTestView = lazy(() => import('./components/ThemeTestView'));
 
 // Import ProfileSubSection type
 import type { ProfileSubSection } from './components/UserProfileView';
@@ -229,39 +230,39 @@ export default function App() {
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#1e293b',
-                color: '#f1f5f9',
+                background: 'var(--surface)',
+                color: 'var(--foreground)',
                 borderRadius: '12px',
                 padding: '12px 16px',
                 fontSize: '14px',
                 maxWidth: '420px',
-                border: '1px solid #334155',
+                border: '1px solid var(--border)',
                 boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)',
               },
               success: {
                 duration: 3000,
                 iconTheme: {
                   primary: '#10b981',
-                  secondary: '#f1f5f9',
+                  secondary: 'var(--foreground)',
                 },
               },
               error: {
                 duration: 5000,
                 iconTheme: {
                   primary: '#ef4444',
-                  secondary: '#f1f5f9',
+                  secondary: 'var(--foreground)',
                 },
               },
               loading: {
                 iconTheme: {
                   primary: '#06b6d4',
-                  secondary: '#f1f5f9',
+                  secondary: 'var(--foreground)',
                 },
               },
             }}
           />
           
-          <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Vazirmatn',system-ui,sans-serif]">
+          <div className="min-h-screen text-slate-100 flex flex-col font-['Vazirmatn',system-ui,sans-serif]" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
           {/* Top Main Navigation */}
           <Navbar
             currentUser={currentUser}
@@ -417,7 +418,7 @@ export default function App() {
           )}
 
           {/* Footer */}
-          <footer className="border-t border-slate-800 bg-slate-900/70 py-6 mb-safe pb-24 lg:pb-6 text-center text-xs text-slate-400">
+          <footer className="border-t py-6 mb-safe pb-24 lg:pb-6 text-center text-xs transition-colors" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)', color: 'var(--muted-foreground)' }}>
             <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-right">
                 <span className="font-bold text-white">EDX CRM WEB FOV</span>

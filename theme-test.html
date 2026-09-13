@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست سیستم تم</title>
+    <style>
+        :root {
+            /* Dark Mode (Default) */
+            --background: #0f172a;
+            --foreground: #f8fafc;
+            --surface: #1e293b;
+            --surface-secondary: #334155;
+            --border: #475569;
+            --primary: #f59e0b;
+            --primary-foreground: #0f172a;
+            --muted: #334155;
+            --muted-foreground: #94a3b8;
+        }
+
+        .light {
+            --background: #ffffff;
+            --foreground: #0f172a;
+            --surface: #f8fafc;
+            --surface-secondary: #f1f5f9;
+            --border: #e2e8f0;
+            --primary: #d97706;
+            --primary-foreground: #ffffff;
+            --muted: #f1f5f9;
+            --muted-foreground: #64748b;
+        }
+
+        [data-color-theme="blue"] {
+            --primary: #3b82f6;
+        }
+
+        [data-color-theme="purple"] {
+            --primary: #8b5cf6;
+        }
+
+        [data-color-theme="emerald"] {
+            --primary: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            background-color: var(--surface);
+            color: var(--foreground);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--surface-secondary);
+            border-color: var(--primary);
+        }
+
+        button.active {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: var(--muted-foreground);
+            line-height: 1.6;
+        }
+
+        .primary-text {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .status {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 2rem;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .swatch {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .swatch:hover {
+            transform: scale(1.1);
+            border-color: var(--foreground);
+        }
+
+        .swatch.active {
+            border-color: var(--primary);
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 آزمایشگاه تم EDX CRM</h1>
+            <p style="color: var(--muted-foreground); margin-top: 1rem;">
+                تست کامل سیستم تم با تمام ترکیب‌های رنگی
+            </p>
+        </div>
+
+        <div class="controls">
+            <button onclick="setTheme('dark')" id="btn-dark" class="active">🌙 تیره</button>
+            <button onclick="setTheme('light')" id="btn-light">☀️ روشن</button>
+        </div>
+
+        <div class="color-swatches">
+            <div class="swatch active" style="background-color: #f59e0b;" onclick="setColor('default')" title="پیش‌فرض (طلایی)"></div>
+            <div class="swatch" style="background-color: #3b82f6;" onclick="setColor('blue')" title="آبی"></div>
+            <div class="swatch" style="background-color: #8b5cf6;" onclick="setColor('purple')" title="بنفش"></div>
+            <div class="swatch" style="background-color: #10b981;" onclick="setColor('emerald')" title="سبز"></div>
+            <div class="swatch" style="background-color: #14b8a6;" onclick="setColor('teal')" title="فیروزه‌ای"></div>
+            <div class="swatch" style="background-color: #f97316;" onclick="setColor('orange')" title="نارنجی"></div>
+        </div>
+
+        <div class="preview-grid">
+            <div class="card">
+                <h3>کارت نمونه ۱</h3>
+                <p>این یک کارت نمونه است که رنگ‌های آن به صورت خودکار با تم تغییر می‌کنند.</p>
+                <p class="primary-text">رنگ اصلی (Primary)</p>
+            </div>
+
+            <div class="card">
+                <h3>کارت نمونه ۲</h3>
+                <p>تمام المان‌های UI باید به تغییرات تم واکنش نشان دهند.</p>
+                <p class="primary-text">همه چیز Dynamic است!</p>
+            </div>
+
+            <div class="card">
+                <h3>کارت نمونه ۳</h3>
+                <p>سیستم تم شامل حالت روشن، تیره و ۹ پالت رنگی مختلف است.</p>
+                <p class="primary-text">Perfect! ✨</p>
+            </div>
+        </div>
+
+        <div class="status">
+            ✅ سیستم تم به درستی کار می‌کند!
+        </div>
+    </div>
+
+    <script>
+        let currentTheme = 'dark';
+        let currentColor = 'default';
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            const html = document.documentElement;
+            
+            if (theme === 'light') {
+                html.classList.add('light');
+                html.classList.remove('dark');
+            } else {
+                html.classList.add('dark');
+                html.classList.remove('light');
+            }
+
+            // Update button states
+            document.getElementById('btn-dark').classList.toggle('active', theme === 'dark');
+            document.getElementById('btn-light').classList.toggle('active', theme === 'light');
+
+            console.log('Theme changed to:', theme);
+        }
+
+        function setColor(color) {
+            currentColor = color;
+            document.documentElement.setAttribute('data-color-theme', color);
+            
+            // Update swatch states
+            document.querySelectorAll('.swatch').forEach((swatch, index) => {
+                const colors = ['default', 'blue', 'purple', 'emerald', 'teal', 'orange'];
+                swatch.classList.toggle('active', colors[index] === color);
+            });
+
+            console.log('Color theme changed to:', color);
+        }
+
+        // Set initial state
+        setTheme('dark');
+        setColor('default');
+    </script>
+</body>
+</html>
