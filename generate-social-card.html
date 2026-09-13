@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate EDX CRM Social Card</title>
+    <style>
+        body {
+            font-family: 'Vazirmatn', Arial, sans-serif;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        #canvas {
+            border: 2px solid #F59E0B;
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        button {
+            background: #F59E0B;
+            color: #0F172A;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #D97706;
+        }
+        
+        .info {
+            background: #0F172A;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-width: 600px;
+        }
+        
+        .info h3 {
+            color: #F59E0B;
+            margin-top: 0;
+        }
+        
+        .info code {
+            background: #1e293b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #F59E0B;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 EDX CRM Social Card Generator</h1>
+    <p>این صفحه تصویر پیش‌نمایش شبکه‌های اجتماعی را می‌سازد</p>
+    
+    <canvas id="canvas" width="1200" height="630"></canvas>
+    
+    <div class="controls">
+        <button onclick="downloadImage()">📥 دانلود PNG</button>
+        <button onclick="copyToClipboard()">📋 کپی به Clipboard</button>
+        <button onclick="regenerate()">🔄 ساخت مجدد</button>
+    </div>
+    
+    <div class="info">
+        <h3>📖 راهنمای استفاده</h3>
+        <ol style="text-align: right;">
+            <li>روی دکمه <code>دانلود PNG</code> کلیک کنید</li>
+            <li>فایل <code>edx-crm-social-card.png</code> ذخیره می‌شود</li>
+            <li>این فایل را در پوشه <code>public/</code> پروژه قرار دهید</li>
+            <li>در <code>index.html</code> مسیر را به <code>/edx-crm-social-card.png</code> تغییر دهید</li>
+            <li>commit و push کنید</li>
+        </ol>
+        
+        <h3>✅ نتیجه</h3>
+        <p>وقتی لینک سایت را در تلگرام، واتساپ، توییتر، لینکدین share کنید، این تصویر نمایش داده می‌شود!</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function drawCard() {
+            // Background - Dark Blue Black
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(0, 0, 1200, 630);
+            
+            // Top accent line
+            ctx.fillStyle = '#F59E0B';
+            ctx.fillRect(0, 0, 1200, 8);
+            
+            // Bottom accent line
+            ctx.fillRect(0, 622, 1200, 8);
+            
+            // Draw EDX Letters
+            ctx.strokeStyle = '#F59E0B';
+            ctx.lineWidth = 24;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // E Letter
+            ctx.beginPath();
+            ctx.moveTo(300, 180);
+            ctx.lineTo(420, 180);
+            ctx.moveTo(300, 180);
+            ctx.lineTo(300, 420);
+            ctx.moveTo(300, 300);
+            ctx.lineTo(410, 300);
+            ctx.moveTo(300, 420);
+            ctx.lineTo(420, 420);
+            ctx.stroke();
+            
+            // D Letter
+            ctx.beginPath();
+            ctx.moveTo(460, 180);
+            ctx.lineTo(540, 180);
+            ctx.bezierCurveTo(640, 180, 680, 240, 680, 300);
+            ctx.bezierCurveTo(680, 360, 640, 420, 540, 420);
+            ctx.lineTo(460, 420);
+            ctx.lineTo(460, 180);
+            ctx.stroke();
+            
+            // X Letter
+            ctx.beginPath();
+            ctx.moveTo(730, 180);
+            ctx.lineTo(850, 420);
+            ctx.moveTo(850, 180);
+            ctx.lineTo(730, 420);
+            ctx.stroke();
+            
+            // Title - English
+            ctx.fillStyle = '#F8FAFC';
+            ctx.font = 'bold 48px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('EDX CRM', 600, 500);
+            
+            // Subtitle - Persian (need to use English approximation)
+            ctx.fillStyle = '#94A3B8';
+            ctx.font = '28px Arial, sans-serif';
+            ctx.fillText('Web Developer Project Manager', 600, 555);
+            
+            // Decorative dots
+            ctx.fillStyle = '#F59E0B';
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.arc(150, 315, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(1050, 315, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+        
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'edx-crm-social-card.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            alert('✅ تصویر دانلود شد!\n\nحالا:\n1. فایل را در پوشه public/ قرار دهید\n2. در index.html مسیر og:image را تغییر دهید\n3. commit و push کنید');
+        }
+        
+        function copyToClipboard() {
+            canvas.toBlob(blob => {
+                const item = new ClipboardItem({ 'image/png': blob });
+                navigator.clipboard.write([item]).then(() => {
+                    alert('✅ تصویر کپی شد به Clipboard!');
+                }).catch(err => {
+                    alert('❌ خطا در کپی: ' + err);
+                });
+            });
+        }
+        
+        function regenerate() {
+            ctx.clearRect(0, 0, 1200, 630);
+            drawCard();
+        }
+        
+        // Initial draw
+        drawCard();
+    </script>
+</body>
+</html>
