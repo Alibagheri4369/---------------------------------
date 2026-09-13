@@ -33,7 +33,7 @@ import { User, Project, UserPreferences, ThemeMode, ColorTheme, AppLanguage, Dat
 import { PRODUCT_GUIDE_CHAPTERS, GuideChapter } from '../data/productGuideChapters';
 import { getCurrentJalaliDate, toPersianDigits, getTehranDate } from '../utils/jalali';
 import { useI18n } from '../i18n/I18nProvider';
-// TEMPORARY DISABLED: import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/ThemeProvider';
 
 export type ProfileSubSection = 'account' | 'settings' | 'theme' | 'guide' | 'about' | 'socials';
 
@@ -62,12 +62,11 @@ export default function UserProfileView({
   const [, startTransition] = useTransition();
 
   // استفاده از ThemeProvider برای مدیریت تم
-  // TEMPORARY: Comment out useTheme to debug
-  // const { themeMode: currentThemeMode, colorTheme: currentColorTheme, setThemeMode: setGlobalThemeMode, setColorTheme: setGlobalColorTheme } = useTheme();
+  const { themeMode: currentThemeMode, colorTheme: currentColorTheme, setThemeMode: setGlobalThemeMode, setColorTheme: setGlobalColorTheme } = useTheme();
 
   // Local draft states for settings
-  const [themeMode, setThemeMode] = useState<ThemeMode>(preferences.themeMode);
-  const [colorTheme, setColorTheme] = useState<ColorTheme>(preferences.colorTheme);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(currentThemeMode);
+  const [colorTheme, setColorTheme] = useState<ColorTheme>(currentColorTheme);
   const [draftLanguage, setDraftLanguage] = useState<AppLanguage>(preferences.language);
   const [timezone, setTimezone] = useState<string>(preferences.timezone || 'Asia/Tehran');
   const [dateFormat, setDateFormat] = useState<DateFormatPreference>(preferences.dateFormat);
@@ -103,8 +102,8 @@ export default function UserProfileView({
     setSaveSuccess(false);
     
     // اعمال فوری تغییرات تم به ThemeProvider
-    // TEMPORARY DISABLED: setGlobalThemeMode(themeMode);
-    // TEMPORARY DISABLED: setGlobalColorTheme(colorTheme);
+    setGlobalThemeMode(themeMode);
+    setGlobalColorTheme(colorTheme);
     
     const ok = await onUpdatePreferences({
       themeMode,
@@ -639,7 +638,7 @@ export default function UserProfileView({
                     type="button"
                     onClick={() => {
                       setThemeMode('dark');
-                      // TEMPORARY DISABLED: setGlobalThemeMode('dark');
+                      setGlobalThemeMode('dark');
                     }}
                     className={`p-3.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-2 cursor-pointer ${
                       themeMode === 'dark'
@@ -655,7 +654,7 @@ export default function UserProfileView({
                     type="button"
                     onClick={() => {
                       setThemeMode('light');
-                      // TEMPORARY DISABLED: setGlobalThemeMode('light');
+                      setGlobalThemeMode('light');
                     }}
                     className={`p-3.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-2 cursor-pointer ${
                       themeMode === 'light'
@@ -671,7 +670,7 @@ export default function UserProfileView({
                     type="button"
                     onClick={() => {
                       setThemeMode('system');
-                      // TEMPORARY DISABLED: setGlobalThemeMode('system');
+                      setGlobalThemeMode('system');
                     }}
                     className={`p-3.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-2 cursor-pointer ${
                       themeMode === 'system'
@@ -704,7 +703,7 @@ export default function UserProfileView({
                       type="button"
                       onClick={() => {
                         setColorTheme(t.id as ColorTheme);
-                        // TEMPORARY DISABLED: setGlobalColorTheme(t.id as ColorTheme);
+                        setGlobalColorTheme(t.id as ColorTheme);
                       }}
                       className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer ${
                         colorTheme === t.id
