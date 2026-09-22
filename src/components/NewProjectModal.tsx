@@ -21,6 +21,7 @@ import { UNIVERSAL_PROJECT_TYPES } from '../data/universalProjectTypes';
 import { TECH_PRESETS } from '../data/techStackPresets';
 import { TechStackConfig, BusinessModel, ProjectComplexity } from '../types';
 import { useI18n } from '../i18n/I18nProvider';
+import { rialToTomanWords } from '../utils/numberToWords';
 
 interface NewProjectModalProps {
   isOpen: boolean;
@@ -275,21 +276,27 @@ export default function NewProjectModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    بودجه تخمینی (میلیون تومان):
+                    بودجه تخمینی (ریال):
                   </label>
                   <div className="relative">
                     <DollarSign className="w-4 h-4 text-slate-400 absolute top-3 right-3 pointer-events-none" />
                     <input
                       type="number"
                       min="0"
-                      step="0.1"
+                      step="1"
                       value={budget}
                       onChange={(e) => setBudget(e.target.value)}
-                      placeholder="مثال: 50"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 pr-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 min-h-[44px]"
+                      placeholder="مثال: 5000000"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 pr-10 pl-12 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 min-h-[44px]"
                     />
+                    <span className="absolute left-3 top-3 text-xs text-slate-400 pointer-events-none">ریال</span>
                   </div>
-                  <p className="text-[10px] text-slate-500 mt-1">فقط عدد وارد کنید (مثلاً: 50، 100، 200)</p>
+                  {budget && Number(budget) > 0 && (
+                    <p className="text-[10px] text-emerald-400 mt-1.5 font-medium">
+                      💰 {rialToTomanWords(Number(budget))}
+                    </p>
+                  )}
+                  <p className="text-[10px] text-slate-500 mt-1">مبلغ را به ریال وارد کنید</p>
                 </div>
 
                 <div>

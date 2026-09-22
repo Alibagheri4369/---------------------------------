@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Project, Phase } from '../types';
 import { generateProjectRoadmap } from '../data/universalLifecycle';
+import { rialToTomanWords } from '../utils/numberToWords';
 import { calculateProjectStats, calculateUserOverallStats } from '../services/analyticsService';
 import { useI18n } from '../i18n/I18nProvider';
 
@@ -218,7 +219,7 @@ export default function WhereAmIWidget({
                 <div className="bg-emerald-950/40 px-2.5 py-1.5 rounded-xl border border-emerald-700/50 text-emerald-300 flex items-center gap-1">
                   <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
                   <span className="text-emerald-400 text-[11px]">بودجه:</span>
-                  <strong className="text-white font-bold text-xs">{currentProject.budget} میلیون تومان</strong>
+                  <strong className="text-white font-bold text-xs">{rialToTomanWords(Number(currentProject.budget))}</strong>
                 </div>
               )}
               {currentProject.deadline && (
