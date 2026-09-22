@@ -23,7 +23,8 @@ import {
   Calendar,
   Clock,
   ShieldCheck,
-  CheckSquare
+  CheckSquare,
+  DollarSign
 } from 'lucide-react';
 import { Project, Phase } from '../types';
 import { generateProjectRoadmap } from '../data/universalLifecycle';
@@ -213,6 +214,20 @@ export default function WhereAmIWidget({
                 <span className="text-slate-400 text-[11px]">نوع:</span>
                 <strong className="text-cyan-300 font-semibold text-xs">{currentProject.projectType}</strong>
               </div>
+              {currentProject.budget && (
+                <div className="bg-emerald-950/40 px-2.5 py-1.5 rounded-xl border border-emerald-700/50 text-emerald-300 flex items-center gap-1">
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-400 text-[11px]">بودجه:</span>
+                  <strong className="text-white font-bold text-xs">{currentProject.budget} میلیون تومان</strong>
+                </div>
+              )}
+              {currentProject.deadline && (
+                <div className="bg-amber-950/40 px-2.5 py-1.5 rounded-xl border border-amber-700/50 text-amber-300 flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-amber-400 text-[11px]">ددلاین:</span>
+                  <strong className="text-white font-bold text-xs">{currentProject.deadline}</strong>
+                </div>
+              )}
               {currentProject.selectedModules && (
                 <div className="bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-slate-800 text-slate-300 flex items-center gap-1">
                   <Puzzle className="w-3.5 h-3.5 text-amber-400" />

@@ -275,17 +275,21 @@ export default function NewProjectModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    بودجه تخمینی:
+                    بودجه تخمینی (میلیون تومان):
                   </label>
                   <div className="relative">
+                    <DollarSign className="w-4 h-4 text-slate-400 absolute top-3 right-3 pointer-events-none" />
                     <input
-                      type="text"
+                      type="number"
+                      min="0"
+                      step="0.1"
                       value={budget}
                       onChange={(e) => setBudget(e.target.value)}
-                      placeholder="بودجه پروژه (اختیاری)"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 min-h-[44px]"
+                      placeholder="مثال: 50"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 pr-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 min-h-[44px]"
                     />
                   </div>
+                  <p className="text-[10px] text-slate-500 mt-1">فقط عدد وارد کنید (مثلاً: 50، 100، 200)</p>
                 </div>
 
                 <div>
@@ -293,14 +297,16 @@ export default function NewProjectModal({
                     ددلاین تحویل نهایی:
                   </label>
                   <div className="relative">
+                    <Calendar className="w-4 h-4 text-slate-400 absolute top-3 right-3 pointer-events-none" />
                     <input
                       type="text"
                       value={deadline}
                       onChange={(e) => setDeadline(e.target.value)}
-                      placeholder="ددلاین یا تاریخ تحویل (اختیاری)"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 min-h-[44px]"
+                      placeholder="مثال: ۱۴۰۳/۱۰/۱۵ یا 3 ماه"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 pr-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 min-h-[44px]"
                     />
                   </div>
+                  <p className="text-[10px] text-slate-500 mt-1">تاریخ یا مدت زمان تخمینی</p>
                 </div>
               </div>
 
