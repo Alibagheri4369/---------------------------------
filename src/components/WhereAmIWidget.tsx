@@ -23,8 +23,7 @@ import {
   Calendar,
   Clock,
   ShieldCheck,
-  CheckSquare,
-  DollarSign
+  CheckSquare
 } from 'lucide-react';
 import { Project, Phase } from '../types';
 import { generateProjectRoadmap } from '../data/universalLifecycle';
@@ -217,7 +216,7 @@ export default function WhereAmIWidget({
               </div>
               {currentProject.budget && (
                 <div className="bg-emerald-950/40 px-2.5 py-1.5 rounded-xl border border-emerald-700/50 text-emerald-300 flex items-center gap-1">
-                  <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-400 text-[10px] font-bold">ریال</span>
                   <span className="text-emerald-400 text-[11px]">بودجه:</span>
                   <strong className="text-white font-bold text-xs">{rialToTomanWords(Number(currentProject.budget))}</strong>
                 </div>
