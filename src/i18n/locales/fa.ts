@@ -200,6 +200,19 @@ export const fa: TranslationKeys = {
   authRegisterButton: 'ثبت‌نام و شروع مدیریت پروژه‌ها',
   authSaveProfileButton: 'ذخیره تغییرات نام و پروفایل',
   authLogoutButton: 'خروج از حساب کاربری',
+  
+  // Additional Auth Messages
+  authPasswordMinLengthFull: 'رمز عبور باید حداقل ۶ کاراکتر باشد',
+  authVerifyEmail: 'لطفاً ایمیل خود را قبل از ورود تأیید کنید.',
+  authCheckEmailVerify: 'لطفاً ایمیل خود را چک کنید و روی لینک تأیید کلیک کنید.',
+  authPasswordResetSent: 'ایمیل بازیابی رمز عبور ارسال شد! صندوق ورودی خود را چک کنید.',
+  authPasswordResetFailed: 'ارسال ایمیل بازیابی رمز عبور با خطا مواجه شد',
+  authResendVerification: 'ارسال مجدد ایمیل تأیید',
+  authVerificationSent: 'ایمیل تأیید ارسال شد! صندوق ورودی خود را چک کنید.',
+  authResendFailed: 'ارسال مجدد ایمیل تأیید با خطا مواجه شد',
+  authGoogleSignIn: 'ورود با Google',
+  authGoogleSignInFailed: 'ورود با Google با خطا مواجه شد',
+  authOr: 'یا',
 
   // Toast / Notifications
   syncInProgress: 'در حال همگام‌سازی ابری...',

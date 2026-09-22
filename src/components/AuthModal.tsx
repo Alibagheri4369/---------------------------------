@@ -70,7 +70,7 @@ export default function AuthModal({
           return;
         }
         if (password.length < 6) {
-          setErrorMsg('Password must be at least 6 characters');
+          setErrorMsg(t('authPasswordMinLengthFull'));
           setIsSubmitting(false);
           return;
         }
@@ -81,7 +81,7 @@ export default function AuthModal({
         if (result.success) {
           setSuccessMsg(t('authRegisterSuccess'));
           if (result.error?.includes('verify')) {
-            setWarningMsg('Please check your email to verify your account before logging in.');
+            setWarningMsg(t('authCheckEmailVerify'));
             setEmailVerified(false);
           }
           setTimeout(() => onClose(), 2000);
@@ -105,7 +105,7 @@ export default function AuthModal({
           setTimeout(() => onClose(), 700);
         } else {
           if (result.error?.includes('verify') || result.error?.includes('confirmed')) {
-            setErrorMsg('Please verify your email before logging in.');
+            setErrorMsg(t('authVerifyEmail'));
             setEmailVerified(false);
           } else {
             setErrorMsg(result.error || t('authLoginError'));
@@ -136,13 +136,13 @@ export default function AuthModal({
         const result = await sendPasswordResetEmail(email.trim());
         
         if (result.success) {
-          setSuccessMsg('Password reset email sent! Check your inbox.');
+          setSuccessMsg(t('authPasswordResetSent'));
           setTimeout(() => {
             setMode('login');
             setSuccessMsg('');
           }, 3000);
         } else {
-          setErrorMsg(result.error || 'Failed to send password reset email');
+          setErrorMsg(result.error || t('authPasswordResetFailed'));
         }
       }
     } catch (err: any) {
@@ -158,12 +158,12 @@ export default function AuthModal({
       setIsSubmitting(true);
       const result = await loginWithGoogle();
       if (!result.success) {
-        setErrorMsg(result.error || 'Failed to sign in with Google');
+        setErrorMsg(result.error || t('authGoogleSignInFailed'));
       }
       // OAuth will redirect, so this won't normally reach here
     } catch (err: any) {
       console.error('Google login error:', err);
-      setErrorMsg(err?.message || 'Failed to sign in with Google');
+      setErrorMsg(err?.message || t('authGoogleSignInFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -178,13 +178,13 @@ export default function AuthModal({
       const result = await resendVerificationEmail();
       
       if (result.success) {
-        setSuccessMsg('Verification email sent! Check your inbox.');
+        setSuccessMsg(t('authVerificationSent'));
       } else {
-        setErrorMsg(result.error || 'Failed to resend verification email');
+        setErrorMsg(result.error || t('authResendFailed'));
       }
     } catch (err: any) {
       console.error('Resend verification error:', err);
-      setErrorMsg(err?.message || 'Failed to resend verification email');
+      setErrorMsg(err?.message || t('authResendFailed'));
     } finally {
       setResendingVerification(false);
     }
@@ -289,7 +289,7 @@ export default function AuthModal({
         {!emailVerified && mode === 'login' && (
           <div className="mb-4 p-3 rounded-lg bg-orange-950/70 border border-orange-800/80 text-right">
             <div className="text-xs text-orange-300 mb-2">
-              Your email is not verified. Please check your inbox and click the verification link.
+              {t('authCheckEmailVerify')}
             </div>
             <button
               type="button"
@@ -298,7 +298,7 @@ export default function AuthModal({
               className="text-xs text-orange-400 hover:text-orange-300 underline flex items-center gap-1 disabled:opacity-50"
             >
               <RefreshCw className={`w-3 h-3 ${resendingVerification ? 'animate-spin' : ''}`} />
-              Resend verification email
+              {t('authResendVerification')}
             </button>
           </div>
         )}
@@ -483,7 +483,7 @@ export default function AuthModal({
                     <div className="w-full border-t border-slate-700"></div>
                   </div>
                   <div className="relative flex justify-center text-xs">
-                    <span className="px-2 bg-slate-900 text-slate-400">or</span>
+                    <span className="px-2 bg-slate-900 text-slate-400">{t('authOr')}</span>
                   </div>
                 </div>
 

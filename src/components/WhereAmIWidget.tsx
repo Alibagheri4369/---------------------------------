@@ -28,6 +28,7 @@ import {
 import { Project, Phase } from '../types';
 import { generateProjectRoadmap } from '../data/universalLifecycle';
 import { rialToTomanWords } from '../utils/numberToWords';
+import { toPersianDigits } from '../utils/jalali';
 import { calculateProjectStats, calculateUserOverallStats } from '../services/analyticsService';
 import { useI18n } from '../i18n/I18nProvider';
 
@@ -95,25 +96,25 @@ export default function WhereAmIWidget({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 text-center space-y-1">
             <span className="text-[11px] text-slate-400 font-semibold block">تعداد پروژه‌ها</span>
-            <span className="text-2xl font-black text-white font-mono">{overallStats.totalProjects}</span>
+            <span className="text-2xl font-black text-white font-mono">{toPersianDigits(overallStats.totalProjects)}</span>
             <span className="text-[10px] text-slate-500 block">پروژه ثبت‌شده</span>
           </div>
 
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 text-center space-y-1">
             <span className="text-[11px] text-slate-400 font-semibold block">تسک‌های انجام‌شده</span>
-            <span className="text-2xl font-black text-emerald-400 font-mono">{overallStats.completedTasks}</span>
+            <span className="text-2xl font-black text-emerald-400 font-mono">{toPersianDigits(overallStats.completedTasks)}</span>
             <span className="text-[10px] text-slate-500 block">تسک تکمیل‌شده</span>
           </div>
 
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 text-center space-y-1">
             <span className="text-[11px] text-slate-400 font-semibold block">تسک‌های باقیمانده</span>
-            <span className="text-2xl font-black text-amber-400 font-mono">{overallStats.pendingTasks}</span>
+            <span className="text-2xl font-black text-amber-400 font-mono">{toPersianDigits(overallStats.pendingTasks)}</span>
             <span className="text-[10px] text-slate-500 block">در انتظار اقدام</span>
           </div>
 
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 text-center space-y-1">
             <span className="text-[11px] text-slate-400 font-semibold block">میانگین پیشرفت</span>
-            <span className="text-2xl font-black text-cyan-400 font-mono">{overallStats.overallProgress}٪</span>
+            <span className="text-2xl font-black text-cyan-400 font-mono">{toPersianDigits(overallStats.overallProgress)}٪</span>
             <span className="text-[10px] text-slate-500 block">پیشرفت واقعی</span>
           </div>
         </div>
@@ -193,7 +194,7 @@ export default function WhereAmIWidget({
 
             {/* Active Phase Title */}
             <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug">
-              اکنون در <span className="text-cyan-400">فاز {activePhase.number}</span> هستید: {activePhase.title}
+              اکنون در <span className="text-cyan-400">فاز {toPersianDigits(activePhase.number)}</span> هستید: {activePhase.title}
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
@@ -231,7 +232,7 @@ export default function WhereAmIWidget({
               {currentProject.selectedModules && (
                 <div className="bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-slate-800 text-slate-300 flex items-center gap-1">
                   <Puzzle className="w-3.5 h-3.5 text-amber-400" />
-                  <strong className="text-amber-300 font-semibold text-xs">{currentProject.selectedModules.length} ماژول فعال</strong>
+                  <strong className="text-amber-300 font-semibold text-xs">{toPersianDigits(currentProject.selectedModules.length)} ماژول فعال</strong>
                 </div>
               )}
             </div>
@@ -242,8 +243,8 @@ export default function WhereAmIWidget({
             {/* Phase Gauge */}
             <div>
               <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="text-slate-300 font-medium">پیشرفت فاز {activePhase.number}</span>
-                <span className="text-cyan-400 font-bold font-mono text-sm">{activePhasePercent}٪</span>
+                <span className="text-slate-300 font-medium">پیشرفت فاز {toPersianDigits(activePhase.number)}</span>
+                <span className="text-cyan-400 font-bold font-mono text-sm">{toPersianDigits(activePhasePercent)}٪</span>
               </div>
               <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
                 <div 
@@ -252,7 +253,7 @@ export default function WhereAmIWidget({
                 />
               </div>
               <div className="text-[11px] text-slate-400 mt-1 flex justify-between">
-                <span>{activePhaseDone} از {activePhaseTotal} تسک انجام شده</span>
+                <span>{toPersianDigits(activePhaseDone)} از {toPersianDigits(activePhaseTotal)} تسک انجام شده</span>
                 {activePhasePercent === 100 && (
                   <span className="text-emerald-400 font-bold flex items-center gap-0.5">
                     <Check className="w-3 h-3" /> کامل
@@ -264,8 +265,8 @@ export default function WhereAmIWidget({
             {/* Total Project Gauge (Calculated strictly from real database tasks) */}
             <div className="pt-2.5 border-t border-slate-800/80">
               <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="text-slate-300 font-medium">پیشرفت کل نقشه راه ({roadmap.length} فاز)</span>
-                <span className="text-emerald-400 font-bold font-mono text-sm">{stats.progressPercent}٪</span>
+                <span className="text-slate-300 font-medium">پیشرفت کل نقشه راه ({toPersianDigits(roadmap.length)} فاز)</span>
+                <span className="text-emerald-400 font-bold font-mono text-sm">{toPersianDigits(stats.progressPercent)}٪</span>
               </div>
               <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div 
@@ -274,7 +275,7 @@ export default function WhereAmIWidget({
                 />
               </div>
               <div className="text-[11px] text-slate-400 mt-1">
-                {stats.completedTasks} از {stats.totalTasks} تسک تکمیل‌شده
+                {toPersianDigits(stats.completedTasks)} از {toPersianDigits(stats.totalTasks)} تسک تکمیل‌شده
               </div>
             </div>
           </div>
