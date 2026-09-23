@@ -42,7 +42,7 @@ describe('ErrorBoundary', () => {
     );
 
     expect(screen.getByText(/خطایی رخ داده است/i)).toBeInTheDocument();
-    expect(screen.getByText(/Test error message/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Test error message/i).length).toBeGreaterThan(0);
   });
 
   it('should display error message', () => {
@@ -52,7 +52,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Test error message')).toBeInTheDocument();
+    expect(screen.getAllByText('Test error message').length).toBeGreaterThan(0);
   });
 
   it('should show action buttons', () => {

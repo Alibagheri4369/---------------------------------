@@ -326,16 +326,16 @@ export default function UserProfileView({
 
             {/* Logout button: Strictly ONLY for authenticated users */}
             {currentUser && (
-              <div className="pt-2 mt-2 border-t border-slate-800">
+              <div className="pt-2 mt-2 border-t border-slate-800 space-y-2">
                 <button
                   onClick={onLogout}
-                  className="w-full flex items-center justify-between p-3 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-950/40 hover:text-red-300 border border-transparent hover:border-red-800/40 transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between p-3 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800/60 hover:text-white border border-transparent hover:border-slate-700 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5">
                     <LogOut className="w-4 h-4" />
                     <span>خروج از حساب کاربری</span>
                   </div>
-                  <span className="text-[10px] text-red-500">Logout</span>
+                  <span className="text-[10px] text-slate-500">Logout</span>
                 </button>
               </div>
             )}

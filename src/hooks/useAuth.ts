@@ -6,6 +6,7 @@ import {
   registerUser,
   logoutUser,
   updateUserProfile,
+  deleteUserAccount,
   DEFAULT_GUEST_USER,
 } from '../services/authService';
 import { getSupabaseConfig, testSupabaseConnection } from '../services/supabaseClient';
@@ -94,6 +95,14 @@ export function useAuth() {
     return res;
   }, []);
 
+  const removeAccount = useCallback(async () => {
+    const res = await deleteUserAccount();
+    if (res.success) {
+      setUser(DEFAULT_GUEST_USER);
+    }
+    return res;
+  }, []);
+
   return {
     user,
     loading,
@@ -101,8 +110,9 @@ export function useAuth() {
     register,
     logout,
     updateProfile,
+    removeAccount,
+    retestConnection,
     supabaseConnected,
     connectionMessage,
-    retestConnection,
   };
 }
